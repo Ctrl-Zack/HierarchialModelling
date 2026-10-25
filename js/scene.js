@@ -94,7 +94,7 @@ const RAIL_Y = [0.28, 0.60];            // tinggi rel [bawah, atas] saat dudukan
 const RAIL_LEN = 0.70;                  // panjang kedua rel (SAMA -> jajar genjang)
 const LEG_X = 0.10;                     // posisi kaki kursi dari poros rel
 const ARM_ATTACH  = [-0.30, 0.00, PIN_Z];   // titik atas link rod (lokal MovingArm)
-const RAIL_ATTACH = [ 0.55, 0.00, PIN_Z];   // titik bawah link rod (lokal RailUpper)
+const SEAT_ATTACH = [ 0.04, 0.55, PIN_Z];   // titik bawah link rod (lokal SeatNode - belakang sandaran)
 
 function createNode(name, meshes) {
   return new Node(name, meshes);
@@ -195,8 +195,6 @@ function buildSceneHierarchy(meshes) {
        .addBox([RAIL_LEN, 0.06, 0.06], [RAIL_LEN / 2, 0, 0], MAT.yellow)
        .addPipe([RAIL_LEN, 0, -0.04], [RAIL_LEN, 0, 0.04], 0.045, MAT.yellow);
     }
-    railU.addPipe([RAIL_ATTACH[0], 0, 0], [RAIL_ATTACH[0], 0, PIN_Z + 0.02], 0.025, MAT.yellow)
-         .addPipe([RAIL_ATTACH[0], 0, PIN_Z - 0.015], [RAIL_ATTACH[0], 0, PIN_Z + 0.02], 0.04, MAT.silver);
 
     // Child: SeatNode
     const seat = railU.add(createNode('SeatNode' + tag, meshes));
@@ -208,7 +206,9 @@ function buildSceneHierarchy(meshes) {
       .addBox([0.56, 0.045, 0.44], [LEG_X + 0.26, 0.26, 0], MAT.yellow)
       .addPipe([LEG_X + 0.04, 0.26, 0], [LEG_X - 0.02, 0.37, 0], 0.035, MAT.yellow)
       .addPipe([LEG_X - 0.02, 0.37, 0], [LEG_X - 0.03, 0.47, 0], 0.035, MAT.yellow)
-      .addBox([0.045, 0.38, 0.38], [LEG_X - 0.035, 0.62, 0], MAT.yellow, [0, 0, 6]);
+      .addBox([0.045, 0.38, 0.38], [LEG_X - 0.035, 0.62, 0], MAT.yellow, [0, 0, 6])
+      .addPipe([SEAT_ATTACH[0], SEAT_ATTACH[1], 0], [SEAT_ATTACH[0], SEAT_ATTACH[1], PIN_Z + 0.02], 0.025, MAT.yellow)
+      .addPipe([SEAT_ATTACH[0], SEAT_ATTACH[1], PIN_Z - 0.015], [SEAT_ATTACH[0], SEAT_ATTACH[1], PIN_Z + 0.02], 0.04, MAT.silver);
 
     for (const yp of [0, -0.32]) {
       for (const zs of [1, -1]) seat.addBox([0.12, 0.12, 0.02], [0.02, yp, zs * 0.052], MAT.yellow);

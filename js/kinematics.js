@@ -5,7 +5,7 @@
  *
  * (1) Lengan = tuas dua sisi dengan tumpuan di UpperPivotNode:
  *     stang (luar) turun  <=>  pin tuas dalam (titik A) naik.
- * (2) Link rod = batang kaku, panjang L tetap, menggantung dari A ke titik B pada RailUpper.
+ * (2) Link rod = batang kaku, panjang L tetap, menggantung dari A ke titik B pada sambungan belakang kursi (SeatNode).
  * (3) Kedua rel (sama panjang, sejajar) berpivot di klem tiang DAN di kaki kursi
  *     = mekanisme jajar genjang: saat rel berayun sudut alpha, kaki kursi naik
  *     sebesar RAIL_LEN * sin(alpha) tetapi TETAP TEGAK (SeatNode diputar -alpha).
@@ -21,7 +21,7 @@ function chainMatrix(node, stop) {
 }
 
 const armPoint  = (S, mainFrame) => Mat4.transformPoint(chainMatrix(S.arm, mainFrame), ARM_ATTACH);
-const railPoint = (S, mainFrame) => Mat4.transformPoint(chainMatrix(S.railU, mainFrame), RAIL_ATTACH);
+const seatPoint = (S, mainFrame) => Mat4.transformPoint(chainMatrix(S.seat, mainFrame), SEAT_ATTACH);
 
 function initSide(S, mainFrame) {
   S.pivot.rotation[2] = REST_DEG;
@@ -29,7 +29,7 @@ function initSide(S, mainFrame) {
   S.railL.rotation[2] = 0;
   S.seat.rotation[2] = 0;
   const A = armPoint(S, mainFrame);
-  const B = railPoint(S, mainFrame);
+  const B = seatPoint(S, mainFrame);
   S.L = Math.hypot(A[0] - B[0], A[1] - B[1], A[2] - B[2]); // panjang link rod (konstan)
 }
 
@@ -40,7 +40,8 @@ function solveSide(S, pullDeg, mainFrame) {
 
   const dist = a => {                                     // jarak |A - B(alpha)|
     S.railU.rotation[2] = a;
-    const B = railPoint(S, mainFrame);
+    S.seat.rotation[2]  = -a;                             // kursi tetap tegak saat rel berayun
+    const B = seatPoint(S, mainFrame);
     return Math.hypot(A[0] - B[0], A[1] - B[1], A[2] - B[2]);
   };
 
@@ -55,5 +56,5 @@ function solveSide(S, pullDeg, mainFrame) {
   S.seat.rotation[2]  = -alpha;                           // kompensasi pivot kaki -> tetap tegak
   S.alpha = alpha;
   S.lift = RAIL_LEN * Math.sin(alpha * DEG);              // tinggi angkat
-  S.rod.override = pipeMatrix(A, railPoint(S, mainFrame), 0.028); // (5) rod A -> B
+  S.rod.override = pipeMatrix(A, seatPoint(S, mainFrame), 0.028); // (5) rod A -> B
 }
