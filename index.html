@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebGL2 Object Hierarchy – Lat Pull Down / Chest Press Outdoor</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <canvas id="glcanvas"></canvas>
+  <div id="error"></div>
+
+  <!-- Panel Kontrol UI -->
+  <div id="panel">
+    <h1>Lat Pull Down / Chest Press</h1>
+    <p class="sub">Demo Object Hierarchy &amp; Matrix Stack – Pure WebGL2</p>
+
+    <div class="row">
+      <label class="t" for="pullAngle">
+        <span>Pull Angle (UpperPivotNode)</span>
+        <span id="angleVal">0.0°</span>
+      </label>
+      <input id="pullAngle" type="range" min="0" max="45" step="0.1" value="0">
+    </div>
+
+    <div class="row">
+      <button id="btnAuto">▶ Mulai Auto Animation</button>
+    </div>
+
+    <div class="row">
+      <label class="t" for="speed">
+        <span>Kecepatan Animasi</span>
+        <span id="speedVal">2.0</span>
+      </label>
+      <input id="speed" type="range" min="0.5" max="6" step="0.1" value="2">
+    </div>
+
+    <div class="row">
+      <label class="check">
+        <input id="chkAlt" type="checkbox"> Mode bergantian (kiri turun → kanan naik)
+      </label>
+    </div>
+    <div class="row">
+      <label class="check">
+        <input id="chkAxes" type="checkbox" checked> Sumbu lokal pivot (X merah, Y hijau, Z biru)
+      </label>
+    </div>
+    <div class="row">
+      <label class="check">
+        <input id="chkGrid" type="checkbox" checked> Grid lantai
+      </label>
+    </div>
+
+    <div id="tree"></div>
+    <div id="readout"></div>
+    <div class="hint">
+      Tarik stang ke bawah → link rod menarik rel berpivot → kaki kursi terangkat (tetap tegak). Drag canvas: putar kamera. Scroll: zoom.
+    </div>
+  </div>
+
+  <!-- Scripts JavaScript Terstruktur -->
+  <script src="js/math.js"></script>
+  <script src="js/shaders.js"></script>
+  <script src="js/geometry.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/kinematics.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
