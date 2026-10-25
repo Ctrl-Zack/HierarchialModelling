@@ -90,10 +90,10 @@ function setupUI(state, cam, sides, canvas) {
     │  └ MovingArm
     │     ├ GripNode 1
     │     └ GripNode 2
-    ├ LinkRod R/L  (constraint)
+    ├ LinkRod R/L  (MovingArm ↔ Belakang Sandaran)
     ├ <b>RailUpper</b> R/L  pivot α
     │    = <b>${R.alpha.toFixed(1)}° / ${L.alpha.toFixed(1)}°</b>
-    │  └ <b>SeatNode</b> R/L  pivot −α
+    │  └ <b>SeatNode</b> R/L  pivot −α (Joint Sandaran)
     │       kaki tegak  <b>↑ ${cm(R)} / ${cm(L)} cm</b>
     └ RailLower R/L  (sejajar RailUpper)`;
 
