@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /**
  * UI Controls, Interaction Listeners, WASD Keyboard Navigation,
@@ -180,7 +180,8 @@ function setupUI(state, cam, sceneData, canvas) {
 
   elStrideAngle.addEventListener('input', () => {
     if (state.auto) setAuto(false);
-    state.ellipticalStride = parseFloat(elStrideAngle.value);
+    // Clamp agar tidak melebihi zona stabil four-bar linkage elliptical
+    state.ellipticalStride = clamp(parseFloat(elStrideAngle.value), -12, 12);
   });
 
   elAirWalkerAngle.addEventListener('input', () => {

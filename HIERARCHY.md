@@ -19,6 +19,9 @@ Di dalam dunia 3D (*World Space*), terdapat tiga objek peralatan kebugaran *outd
 * **Pergerakan Sendi / Lengan (Child Joints):**
   Sebaliknya, ketika sudut stang ditarik atau diayunkan maju-mundur, perubahan transformasi lokal hanya terjadi pada level *joint/child node* ke bawah. **Alas beton dan rangka dasar tetap diam kokoh di tempatnya di atas tanah hijau.**
 
+### Pemisahan File Objek
+Builder tiap mesin disimpan terpisah di `js/objects/lat-pull.js`, `js/objects/elliptical.js`, dan `js/objects/air-walker.js`. Utilitas bersama seperti `Node`, material, serta `buildSceneHierarchy` tetap berada di `js/scene.js`.
+
 ---
 
 ## 2. Struktur Pohon Hierarki Lengkap (*Scene Graph*)

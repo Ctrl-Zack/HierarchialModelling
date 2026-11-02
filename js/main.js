@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /**
  * Application Entry Point & Main Render Loop for 3 Outdoor Fitness Machines
@@ -105,8 +105,8 @@ async function main() {
       state.latPullAngle = 22.5 + 22.5 * Math.sin(state.phase);
       elPullAngle.value = state.latPullAngle;
 
-      // 2. Elliptical: -20 s/d +20 derajat
-      state.ellipticalStride = 20 * Math.sin(state.phase);
+      // 2. Elliptical: -12 s/d +12 derajat (dicap agar tidak melebihi zona stabil linkage)
+      state.ellipticalStride = 12 * Math.sin(state.phase);
       elStrideAngle.value = state.ellipticalStride;
 
       // 3. Air Walker: -22 s/d +22 derajat

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /**
  * Kinematics Mechanism Solvers for Three Outdoor Fitness Machines:
@@ -63,10 +63,47 @@ function solveSide(S, pullDeg, mainFrame) {
    2. OUTDOOR ELLIPTICAL TRAINER KINEMATICS (Four-Bar Linkage)
    ========================================================================= */
 
+function ellipticalRearCandidates(S, Jf) {
+  const dy = Jf[1] - EL_REAR_P2[0];
+  const dz = Jf[2] - EL_REAR_P2[1];
+  const centerDist = Math.hypot(dy, dz);
+  const along = (EL_L_REAR ** 2 - S.beamLen ** 2 + centerDist ** 2) / (2 * centerDist);
+  const heightSquared = EL_L_REAR ** 2 - along ** 2;
+  // if (heightSquared < -1e-8) {
+  //   throw new Error(`Elliptical linkage cannot reach stride ${S.stride}°.`);
+  // }
+
+  const height = Math.sqrt(Math.max(0, heightSquared));
+  const unitY = dy / centerDist;
+  const unitZ = dz / centerDist;
+  return [-1, 1].map(branch => {
+    const y = EL_REAR_P2[0] + along * unitY - branch * height * unitZ;
+    const z = EL_REAR_P2[1] + along * unitZ + branch * height * unitY;
+    return {
+      y,
+      z,
+      phi: Math.atan2((z - EL_REAR_P2[1]) / S.sign, (y - EL_REAR_P2[0]) / S.sign) / DEG
+    };
+  });
+}
+
+function ellipticalAngleDifference(a, b) {
+  return Math.atan2(Math.sin((a - b) * DEG), Math.cos((a - b) * DEG));
+}
+
 function initEllipticalSide(S) {
-  const Jf0 = [S.xPos, EL_FRONT_P1[0] - EL_H_DOWN, EL_FRONT_P1[1]];
-  const Jr0 = [S.xPos, EL_REAR_P2[0] - EL_L_REAR,  EL_REAR_P2[1]];
-  S.beamLen = Math.hypot(Jr0[1] - Jf0[1], Jr0[2] - Jf0[2]);
+  S.beamLen = EL_PEDAL_BEAM_LEN;
+  const initialJf = [S.xPos, EL_FRONT_P1[0] - EL_H_DOWN, EL_FRONT_P1[1]];
+  const referencePhi = 0;
+  const initCandidate = ellipticalRearCandidates(S, initialJf).reduce((best, candidate) =>
+    Math.abs(ellipticalAngleDifference(candidate.phi, referencePhi)) <
+      Math.abs(ellipticalAngleDifference(best.phi, referencePhi))
+      ? candidate
+      : best
+  );
+  S.phi = initCandidate.phi;
+  S.prevJrY = initCandidate.y;
+  S.prevJrZ = initCandidate.z;
 }
 
 function solveEllipticalSide(S, strideDeg) {
@@ -81,31 +118,25 @@ function solveEllipticalSide(S, strideDeg) {
   ];
   S.frontPivot.rotation[0] = strideDeg;
 
-  // 2) Titik engsel ayun belakang Jr (kompak dekat lantai)
-  const calcJr = phiDeg => {
-    const pRad = phiDeg * DEG;
-    return [
-      S.xPos,
-      EL_REAR_P2[0] - EL_L_REAR * Math.cos(pRad),
-      EL_REAR_P2[1] - EL_L_REAR * Math.sin(pRad)
-    ];
-  };
-
-  let lo = -65, hi = 65;
-  for (let i = 0; i < 35; i++) {
-    const mid = (lo + hi) / 2;
-    const Jr = calcJr(mid);
-    const d = Math.hypot(Jr[1] - Jf[1], Jr[2] - Jf[2]);
-    if (d > S.beamLen) lo = mid; else hi = mid;
-  }
-  const phi = (lo + hi) / 2;
+  // Intersect the rear-crank and pedal-beam circles, then keep the nearest branch.
+  // Gunakan jarak Euclidean ke posisi Jr sebelumnya — lebih stabil dari perbandingan sudut.
+  const { y: rearY, z: rearZ } = ellipticalRearCandidates(S, Jf).reduce((best, candidate) =>
+    Math.hypot(candidate.y - S.prevJrY, candidate.z - S.prevJrZ) <
+    Math.hypot(best.y    - S.prevJrY, best.z    - S.prevJrZ)
+      ? candidate : best
+  );
+  S.prevJrY = rearY;
+  S.prevJrZ = rearZ;
+  const dy_r = rearY - EL_REAR_P2[0];
+  const dz_r = rearZ - EL_REAR_P2[1];
+  const phi = Math.atan2(dz_r / S.sign, dy_r / S.sign) / DEG;
   S.phi = phi;
   S.rearPivot.rotation[0] = phi;
 
-  const Jr = calcJr(phi);
+  const Jr = [S.xPos, rearY, rearZ];
 
   // 3) Update geometri batang pedal dan pelat pijakan kaki horizontal di atas lantai
-  S.pedalBeam.parts[0].matrix = pipeMatrix(Jf, Jr, 0.024);
+  S.pedalBeam.parts[0].matrix = beamBoxMatrix(Jf, Jr, 0.1, 0.025);
 
   const tPlate = 0.44;
   const Pplate = [
@@ -114,8 +145,8 @@ function solveEllipticalSide(S, strideDeg) {
     Jf[2] + tPlate * (Jr[2] - Jf[2])
   ];
 
-  const dy = Jr[1] - Jf[1], dz = Jr[2] - Jf[2];
-  const beamAngleX = -Math.atan2(dy, dz);
+  const beamDy = Jr[1] - Jf[1], beamDz = Jr[2] - Jf[2];
+  const beamAngleX = -Math.atan2(beamDy, beamDz);
   const degX = beamAngleX / DEG;
 
   let mPlate = Mat4.translation(Pplate[0], Pplate[1], Pplate[2]);
