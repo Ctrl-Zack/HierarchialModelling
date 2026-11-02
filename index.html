@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WebGL2 Object Hierarchy – Lat Pull Down / Chest Press Outdoor</title>
+  <title>WebGL2 Object Hierarchy – 3 Outdoor Fitness Machines</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -11,51 +11,149 @@
   <canvas id="glcanvas"></canvas>
   <div id="error"></div>
 
-  <!-- Panel Kontrol UI -->
+  <!-- HUD Bantuan Keyboard Game-style (Bawah Kiri) -->
+  <div id="hudHelp">
+    <span class="hud-key">W</span><span class="hud-key">A</span><span class="hud-key">S</span><span class="hud-key">D</span> Geser Base
+    <span class="hud-sep">•</span>
+    <span class="hud-key">Q</span><span class="hud-key">E</span> Putar
+    <span class="hud-sep">•</span>
+    <span class="hud-key">1</span><span class="hud-key">2</span><span class="hud-key">3</span> Pilih Alat
+    <span class="hud-sep">•</span>
+    <span class="hud-key">R</span> Reset
+    <span class="hud-sep">•</span>
+    <span class="hud-key">Spasi</span> Animasi
+  </div>
+
+  <!-- Panel Kontrol Minimalis & Rapi (Kanan Atas) -->
   <div id="panel">
-    <h1>Lat Pull Down / Chest Press</h1>
-    <p class="sub">Demo Object Hierarchy &amp; Matrix Stack – Pure WebGL2</p>
-
-    <div class="row">
-      <label class="t" for="pullAngle">
-        <span>Pull Angle (UpperPivotNode)</span>
-        <span id="angleVal">0.0°</span>
-      </label>
-      <input id="pullAngle" type="range" min="0" max="45" step="0.1" value="0">
+    <div class="panel-header">
+      <div class="panel-title">
+        <h1>Outdoor Fitness Park</h1>
+        <p class="sub">Scene Graph &amp; Kinematika 3D</p>
+      </div>
+      <button id="btnAuto" class="btn-play" title="Mulai / Jeda Animasi">▶</button>
     </div>
 
-    <div class="row">
-      <button id="btnAuto">▶ Mulai Auto Animation</button>
+    <!-- Tab Utama Navigasi Panel: Kontrol | Hierarki | Opsi -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="tab-control">🎮 Kontrol</button>
+      <button class="nav-tab" data-tab="tab-tree">🌳 Hierarki</button>
+      <button class="nav-tab" data-tab="tab-settings">⚙️ Opsi</button>
     </div>
 
-    <div class="row">
-      <label class="t" for="speed">
-        <span>Kecepatan Animasi</span>
-        <span id="speedVal">2.0</span>
-      </label>
-      <input id="speed" type="range" min="0.5" max="6" step="0.1" value="2">
+    <!-- TAB 1: KONTROL INTERAKTIF & WASD -->
+    <div id="tab-control" class="tab-content active">
+      <!-- Pemilih Objek Mesin (3 Alat) -->
+      <div class="segment-group">
+        <button id="btnSelectLatPull" class="segment-btn active">1. Lat Pull</button>
+        <button id="btnSelectElliptical" class="segment-btn">2. Elliptical</button>
+        <button id="btnSelectAirWalker" class="segment-btn">3. Air Walker</button>
+      </div>
+
+      <!-- Info Posisi Base & Reset -->
+      <div class="base-hud">
+        <div class="hud-info">
+          <span class="hud-label">BASE AKTIF:</span>
+          <span id="baseStatusText">LatPull | X: -3.2m, Z: 0.0m</span>
+        </div>
+        <button id="btnResetBase" class="mini-btn" title="Reset Posisi Asal">Reset</button>
+      </div>
+
+      <!-- Artikulasi Sendi Gerak (Child Joints) -->
+      <div class="control-box">
+        <div class="box-tag">ARTIKULASI GERAK (CHILD NODES)</div>
+
+        <div id="rowPullAngle" class="row">
+          <label class="t" for="pullAngle">
+            <span>1. Tarik Lat Pull</span>
+            <span id="angleVal" class="val-badge">0.0°</span>
+          </label>
+          <input id="pullAngle" type="range" min="0" max="45" step="0.1" value="0">
+        </div>
+
+        <div id="rowStrideAngle" class="row">
+          <label class="t" for="strideAngle">
+            <span>2. Langkah Elliptical</span>
+            <span id="strideVal" class="val-badge">0.0°</span>
+          </label>
+          <input id="strideAngle" type="range" min="-22" max="22" step="0.1" value="0">
+        </div>
+
+        <div id="rowAirWalkerAngle" class="row">
+          <label class="t" for="airWalkerAngle">
+            <span>3. Ayunan Air Walker</span>
+            <span id="airWalkerVal" class="val-badge">0.0°</span>
+          </label>
+          <input id="airWalkerAngle" type="range" min="-25" max="25" step="0.1" value="0">
+        </div>
+      </div>
+
+      <!-- Transformasi Posisi Base (Parent Node / Keyboard WASD) -->
+      <div class="control-box">
+        <div class="box-tag">PINDAH BASE TERPILIH (PARENT / WASD)</div>
+
+        <div class="row">
+          <label class="t" for="basePosX">
+            <span>Geser Sumbu X</span>
+            <span id="basePosXVal" class="val-badge">-3.2m</span>
+          </label>
+          <input id="basePosX" type="range" min="-7" max="7" step="0.1" value="-3.2">
+        </div>
+
+        <div class="row">
+          <label class="t" for="basePosZ">
+            <span>Geser Sumbu Z</span>
+            <span id="basePosZVal" class="val-badge">0.0m</span>
+          </label>
+          <input id="basePosZ" type="range" min="-7" max="7" step="0.1" value="0.0">
+        </div>
+
+        <div class="row">
+          <label class="t" for="baseRotY">
+            <span>Rotasi Hadap (Y)</span>
+            <span id="baseRotYVal" class="val-badge">0°</span>
+          </label>
+          <input id="baseRotY" type="range" min="0" max="360" step="1" value="0">
+        </div>
+      </div>
     </div>
 
-    <div class="row">
-      <label class="check">
-        <input id="chkAlt" type="checkbox"> Mode bergantian (kiri turun → kanan naik)
-      </label>
-    </div>
-    <div class="row">
-      <label class="check">
-        <input id="chkAxes" type="checkbox" checked> Sumbu lokal pivot (X merah, Y hijau, Z biru)
-      </label>
-    </div>
-    <div class="row">
-      <label class="check">
-        <input id="chkGrid" type="checkbox" checked> Grid lantai
-      </label>
+    <!-- TAB 2: POHON HIERARKI (SCENE GRAPH) -->
+    <div id="tab-tree" class="tab-content">
+      <div class="box-tag" style="margin-top:2px;">STRUKTUR PEWARISAN MATRIKS</div>
+      <div id="tree"></div>
+      <div id="readout"></div>
+      <p class="hint-small">Pilih alat lewat tombol 1, 2, atau 3. Menggeser Base otomatis memindahkan seluruh struktur di atasnya secara hierarkis.</p>
     </div>
 
-    <div id="tree"></div>
-    <div id="readout"></div>
-    <div class="hint">
-      Tarik stang ke bawah → link rod menarik sandaran kursi → dudukan terangkat (tetap tegak). Drag canvas: putar kamera. Scroll: zoom.
+    <!-- TAB 3: PENGATURAN & TAMPILAN -->
+    <div id="tab-settings" class="tab-content">
+      <div class="row">
+        <label class="t" for="speed">
+          <span>Kecepatan Animasi</span>
+          <span id="speedVal" class="val-badge">2.0</span>
+        </label>
+        <input id="speed" type="range" min="0.5" max="5" step="0.1" value="2">
+      </div>
+
+      <div class="toggle-list">
+        <label class="check">
+          <input id="chkHighlight" type="checkbox" checked> Kotak Seleksi Base
+        </label>
+        <label class="check">
+          <input id="chkAlt" type="checkbox" checked> Gerak Antiphase Kanan/Kiri
+        </label>
+        <label class="check">
+          <input id="chkAxes" type="checkbox"> Tampilkan Sumbu Lokal Pivot
+        </label>
+        <label class="check">
+          <input id="chkGrid" type="checkbox" checked> Grid Lantai Hijau
+        </label>
+      </div>
+
+      <button id="btnResetCamera" class="mini-btn" style="width:100%;margin-top:12px;padding:8px 12px;font-size:12px;cursor:pointer;">📷 Reset Sudut Kamera</button>
+
+      <p class="hint-small">💡 <b>Kamera:</b> Drag canvas = putar orbit. Scroll mouse = zoom in/out.</p>
     </div>
   </div>
 

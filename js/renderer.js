@@ -21,34 +21,53 @@ function drawMesh(gl, U, mesh, model, mat, unlit = 0) {
 }
 
 function drawNode(gl, U, node, parentWorld) {
-  // 1) Akumulasikan transformasi: parentWorld x localMatrix
   const world = Mat4.multiply(parentWorld, node.localMatrix());
   node.world = world;
 
-  // 2) Gambar seluruh part milik node
   for (const part of node.parts) {
     drawMesh(gl, U, part.mesh, Mat4.multiply(world, part.matrix), part.mat);
   }
 
-  // 3) Rekursi ke anak (child nodes)
   for (const child of node.children) {
     drawNode(gl, U, child, world);
   }
 }
 
-function drawAxes(gl, U, meshes, frame) {
-  const L = 0.5;
+// Sumbu koordinat lokal pivot yang proporsional dan tidak menusuk pandangan
+function drawAxes(gl, U, meshes, frame, L = 0.22) {
   const axes = [
-    { to: [L, 0, 0], col: [1.0, 0.15, 0.15] },
-    { to: [0, L, 0], col: [0.15, 0.85, 0.2] },
-    { to: [0, 0, L], col: [0.2, 0.4, 1.0] }
+    { to: [L, 0, 0], col: [1.0, 0.22, 0.22] }, // X = merah
+    { to: [0, L, 0], col: [0.20, 0.85, 0.22] }, // Y = hijau
+    { to: [0, 0, L], col: [0.25, 0.45, 1.00] }  // Z = biru
   ];
 
   gl.disable(gl.DEPTH_TEST);
   for (const a of axes) {
-    drawMesh(gl, U, meshes.cylinder, Mat4.multiply(frame, pipeMatrix([0, 0, 0], a.to, 0.012)), { color: a.col }, 1);
-    const tip = Mat4.scale(Mat4.translation(a.to[0], a.to[1], a.to[2]), 0.045, 0.045, 0.045);
+    drawMesh(gl, U, meshes.cylinder, Mat4.multiply(frame, pipeMatrix([0, 0, 0], a.to, 0.007)), { color: a.col }, 1);
+    const tip = Mat4.scale(Mat4.translation(a.to[0], a.to[1], a.to[2]), 0.024, 0.024, 0.024);
     drawMesh(gl, U, meshes.box, Mat4.multiply(frame, tip), { color: a.col }, 1);
+  }
+  gl.enable(gl.DEPTH_TEST);
+}
+
+// Cincin seleksi kotak base di atas lantai (RTS-style placement box)
+function drawSelectionBox(gl, U, meshes, baseWorld, halfW = 1.8, halfD = 1.0) {
+  const y = 0.045;
+  const c = [0.15, 0.90, 0.45];
+  const r = 0.014;
+
+  gl.disable(gl.DEPTH_TEST);
+  const p1 = [-halfW, y, -halfD];
+  const p2 = [ halfW, y, -halfD];
+  const p3 = [ halfW, y,  halfD];
+  const p4 = [-halfW, y,  halfD];
+
+  const corners = [p1, p2, p3, p4];
+  for (let i = 0; i < 4; i++) {
+    const a = corners[i], b = corners[(i + 1) % 4];
+    drawMesh(gl, U, meshes.cylinder, Mat4.multiply(baseWorld, pipeMatrix(a, b, r)), { color: c }, 1);
+    const cornerBox = Mat4.scale(Mat4.translation(a[0], a[1], a[2]), 0.045, 0.045, 0.045);
+    drawMesh(gl, U, meshes.box, Mat4.multiply(baseWorld, cornerBox), { color: [1.0, 0.90, 0.20] }, 1);
   }
   gl.enable(gl.DEPTH_TEST);
 }
