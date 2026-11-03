@@ -70,7 +70,7 @@ async function main() {
     showScenery: true
   };
 
-  const cam = { yaw: 24, pitch: 18, dist: 12.0, target: [0, 1.1, 0] };
+  const cam = { yaw: 35, pitch: 25, dist: 22.0, target: [-3.0, 1.0, 0] };
 
   // 6. UI & Keyboard Input Setup
   const { elPullAngle, elStrideAngle, elAirWalkerAngle, processKeyboardInput, updateUI } = setupUI(state, cam, sceneData, canvas);
@@ -159,8 +159,9 @@ async function main() {
     gl.uniformMatrix4fv(U.u_ViewMatrix, false, view);
     gl.uniformMatrix4fv(U.u_ProjectionMatrix, false, proj);
     gl.uniform3fv(U.u_CameraPos, eye);
-    gl.uniform3fv(U.u_LightDir, [0.5, 0.9, 0.6]);
-    gl.uniform3fv(U.u_FogColor, [0.81, 0.90, 0.95]);
+    gl.uniform3fv(U.u_LightDir, [0.45, 0.85, 0.55]); // Sinar matahari keemasan dari atas-kanan
+    gl.uniform3fv(U.u_FogColor, [0.80, 0.88, 0.94]); // Kabut atmosferik horizon langit
+    gl.uniform1f(U.u_Time, (now || performance.now()) * 0.001); // Waktu untuk riak air & caustics
 
     // Lantai Rumput Hijau (World Ground)
     drawMesh(gl, U, meshes.box, Mat4.multiply(Mat4.translation(0, -0.02, 0), Mat4.scaling(160, 0.04, 160)), MAT.grass);

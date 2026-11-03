@@ -6,8 +6,8 @@
  */
 
 const MAT = {
-  blue:          { color: [0.10, 0.24, 0.80], shine: 60,  spec: 0.65 },   // rangka tiang biru
-  yellow:        { color: [0.98, 0.84, 0.04], shine: 40,  spec: 0.50 },   // aksen kuning
+  // Mesin Outdoor Fitness:
+  blue:          { color: [0.10, 0.24, 0.80], shine: 80,  spec: 0.65 },   // rangka tiang biru
   silver:        { color: [0.84, 0.86, 0.90], shine: 120, spec: 1.00 },   // pipa silver stang gawang siku
   black:         { color: [0.06, 0.06, 0.07], shine: 24,  spec: 0.35 },   // grip karet hitam
   pedalPlate:    { color: [0.36, 0.38, 0.44], shine: 28,  spec: 0.28 },   // pelat pijakan kaki abu-abu
@@ -16,8 +16,6 @@ const MAT = {
   concrete:      { color: [0.65, 0.65, 0.63], shine: 10,  spec: 0.08 },   // alas beton abu-abu
 
   // Material Urban Green Park:
-  rubberMat:     { color: [0.72, 0.26, 0.18], shine: 10,  spec: 0.08 },   // lantai karet merah bata (EPDM)
-  rubberBorder:  { color: [0.50, 0.18, 0.13], shine: 10,  spec: 0.08 },   // garis tepi karet gelap
   pavingTrack:   { color: [0.76, 0.73, 0.66], shine: 14,  spec: 0.10 },   // paving track melingkar
   pavingBorder:  { color: [0.55, 0.53, 0.48], shine: 10,  spec: 0.06 },   // tepi batu paving
   woodBench:     { color: [0.58, 0.34, 0.16], shine: 18,  spec: 0.15 },   // kayu bangku taman (warm teak)
@@ -29,7 +27,19 @@ const MAT = {
   lampGlow:      { color: [1.00, 0.94, 0.60], shine: 1,   spec: 0.00 },   // kaca/bohlam lentera lampu menyala
   signPlaque:    { color: [0.88, 0.82, 0.72], shine: 10,  spec: 0.06 },   // pelat papan informasi
   signGreen:     { color: [0.12, 0.42, 0.22], shine: 30,  spec: 0.25 },   // aksen hijau papan
-  trashCanBody:  { color: [0.16, 0.38, 0.25], shine: 35,  spec: 0.30 }    // tempat sampah taman hijau
+  trashCanBody:  { color: [0.16, 0.38, 0.25], shine: 35,  spec: 0.30 },   // tempat sampah taman hijau
+
+  // Material Danau (Lakeside Scenery):
+  waterDeep:     { color: [0.02, 0.14, 0.30], shine: 180, spec: 1.20, isWater: 1 },   // air danau dalam biru pekat gelap (water shader aktif)
+  waterShallow:  { color: [0.05, 0.22, 0.38], shine: 130, spec: 0.95, isWater: 1 },   // air tepian danau jernih teduh gelap (water shader aktif)
+  lakeSand:      { color: [0.78, 0.72, 0.58], shine: 8,   spec: 0.04 },   // pasir pantai tepi danau
+  lakeRock:      { color: [0.46, 0.45, 0.43], shine: 18,  spec: 0.12 },   // batu kali alami abu-abu
+  lakeRockDark:  { color: [0.34, 0.33, 0.32], shine: 16,  spec: 0.10 },   // batu kali gelap basah
+  lilyPad:       { color: [0.14, 0.52, 0.20], shine: 20,  spec: 0.15 },   // daun teratai hijau mengapung
+  lotusPetal:    { color: [0.96, 0.58, 0.76], shine: 25,  spec: 0.25 },   // kelopak bunga teratai merah muda
+  lotusCenter:   { color: [0.98, 0.88, 0.15], shine: 35,  spec: 0.40 },   // putik bunga teratai kuning
+  reedStem:      { color: [0.32, 0.46, 0.16], shine: 10,  spec: 0.04 },   // batang buluh/gelagah air
+  cattailHead:   { color: [0.34, 0.20, 0.10], shine: 8,   spec: 0.02 },   // bulir bunga gelagah cokelat
 };
 
 function pipeMatrix(p1, p2, r) {
@@ -113,10 +123,22 @@ class Node {
     return this;
   }
 
-  addSphere(pos, size, mat) {
+  addSphere(pos, size, mat, unlit = 0) {
     const s = typeof size === 'number' ? [size, size, size] : size;
     const m = Mat4.scale(Mat4.translation(pos[0], pos[1], pos[2]), s[0], s[1], s[2]);
     this.parts.push({ mesh: this._meshes.sphere, matrix: m, mat, unlit });
+    return this;
+  }
+
+  addCylinder(radius, height, pos, mat, rotDeg = [0, 0, 0], unlit = 0) {
+    const rx = typeof radius === 'number' ? radius : radius[0];
+    const rz = typeof radius === 'number' ? radius : radius[1];
+    let m = Mat4.translation(pos[0], pos[1], pos[2]);
+    m = Mat4.rotateY(m, rotDeg[1] * DEG);
+    m = Mat4.rotateX(m, rotDeg[0] * DEG);
+    m = Mat4.rotateZ(m, rotDeg[2] * DEG);
+    m = Mat4.scale(m, rx, height, rz);
+    this.parts.push({ mesh: this._meshes.cylinder, matrix: m, mat, unlit });
     return this;
   }
 }
@@ -129,9 +151,12 @@ function createNode(name, meshes) {
    KONFIGURASI POSISI & ROTASI AWAL (DEFAULT BASES)
    Ubah nilai di bawah ini jika ingin mengganti posisi/rotasi awal alat.
    ========================================================================= */
+// Offset translasi environment di sumbu X agar FitnessPad tepat berada di tengah origin (0, 0, 0)
+const ENV_OFFSET_X = -12.5;
+
 const DEFAULT_BASES = {
-  latPull:    { pos: [-3.2, 0, 0], rotY: 0 }, // Sisi Kiri (X = -3.2)
-  elliptical: { pos: [ 0.5, 0, 0], rotY: 0 }, // Tengah    (X =  0.0)
+  latPull:    { pos: [-3.2, 0, 0], rotY: 90 }, // Sisi Kiri (X = -3.2)
+  elliptical: { pos: [ 0.0, 0, 0], rotY: 0 }, // Tengah Origin (X = 0.0)
   airWalker:  { pos: [ 3.2, 0, 0], rotY: 0 }  // Sisi Kanan (X = +3.2)
 };
 
@@ -157,7 +182,9 @@ function buildSceneHierarchy(meshes) {
   const airWalker = buildAirWalkerMachine(airWalkerBase, meshes);
 
   // 4. Urban Green Park Scenery (Lantai Karet, Paving Track, Pohon, Bangku, Lampu)
+  // Seluruh hierarki scenery digeser di sumbu X agar FitnessPad berada di tengah origin
   const environmentNode = root.add(createNode('UrbanParkEnvironmentNode', meshes));
+  environmentNode.translation = [ENV_OFFSET_X, 0, 0];
   buildUrbanParkEnvironment(environmentNode, meshes);
 
   return { root, latPull, elliptical, airWalker, environmentNode };

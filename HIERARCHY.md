@@ -11,7 +11,7 @@ Di dalam dunia 3D (*World Space*), terdapat tiga objek peralatan kebugaran *outd
 1. **Mesin 1:** `LatPullBaseNode` (*Lat Pull Down / Chest Press*) – Default: $X = -3.2\text{ m}$.
 2. **Mesin 2:** `EllipticalBaseNode` (*Outdoor Elliptical Trainer*) – Default: $X = +0.5\text{ m}$.
 3. **Mesin 3:** `AirWalkerBaseNode` (*Outdoor Air Walker / Space Walker*) – Default: $X = +3.2\text{ m}$.
-4. **Scenery:** `UrbanParkEnvironmentNode` – Landasan matras karet merah bata (*EPDM*), *jogging track* paving melingkar, 6 pohon peneduh rimbun, 3 bangku taman, 4 lampu tiang menyala, semak-semak, dan plang informasi.
+4. **Scenery:** `UrbanParkEnvironmentNode` – Landasan matras karet merah bata (*EPDM*), *jogging track* paving melingkar, 6 pohon peneduh rimbun, 3 bangku taman, 4 lampu tiang menyala, semak-semak, plang informasi, serta **Kawasan Danau Alami (*LakeScenicArea*)** di sebelah timur taman lengkap dengan dermaga kayu (*pier*), perahu dayung (*rowboat*), angsa berenang, bunga teratai, buluh air, dan air mancur aerasi berkilau.
 
 ### Sifat Pewarisan Matriks (*Matrix Stack Property*):
 * **Pemindahan Base (Parent Node / Keyboard WASD):**
@@ -31,15 +31,20 @@ Builder tiap mesin disimpan terpisah di `js/objects/lat-pull.js`, `js/objects/el
 graph TD
     Root["Root (World Coordinate / Ground Rumput Hijau)"]
 
-    %% Cabang Scenery Taman
-    Root --> Env["UrbanParkEnvironmentNode (Scenery Taman)"]
-    Env --> Pad["FitnessRubberPad (Matras Karet EPDM Merah Bata)"]
+    %% Cabang Scenery Taman & Danau
+    Root --> Env["UrbanParkEnvironmentNode (Scenery Taman & Danau)"]
+    Env --> Pad["FitnessPad (Matras Karet EPDM Merah Bata)"]
     Env --> Track["JoggingTrackLoop (Paving Track Melingkar R=9.4m)"]
     Env --> Trees["ShadeTreesGroup (6 Pohon Peneduh Rimbun)"]
     Env --> Benches["ParkBenchesGroup (3 Bangku Kayu & Besi)"]
     Env --> Lamps["StreetlampsGroup (4 Tiang Lampu Lentera Menyala)"]
     Env --> Bushes["ParkBushesGroup (Semak Lanskap Asri)"]
     Env --> Amen["ParkAmenities (Plang Info & Tempat Sampah Pilah)"]
+    Env --> Lake["LakeScenicArea (Kawasan Danau Alami & Waterfront)"]
+    Lake --> Water["LakeBasinAndWater (Permukaan Air Berkilau & Dasar Pasir)"]
+    Lake --> Shore["LakesidePromenade (Jalur Paving & Tanggul Batu Kali)"]
+    Lake --> Pier["LakesidePier (Dermaga Kayu & Perahu Dayung)"]
+    Lake --> Bio["LakeFloraFauna (Teratai, Gelagah, Angsa & Air Mancur)"]
 
     %% Cabang Mesin 1: Lat Pull Down
     Root --> LPBase["LatPullBaseNode (Parent Mesin 1: Posisi X, Z & Rotasi Y)"]
@@ -77,7 +82,7 @@ graph TD
     classDef link fill:#0f766e,stroke:#14b8a6,stroke-width:2px,stroke-dasharray: 5 5,color:#fff;
 
     class Root world;
-    class Env,Pad,Track,Trees,Benches,Lamps,Bushes,Amen env;
+    class Env,Pad,Track,Trees,Benches,Lamps,Bushes,Amen,Lake,Water,Shore,Pier,Bio env;
     class LPBase,ELBase,AWBase,LPMain,ELMain,AWMain base;
     class LPPivot,LPRailU,LPSeat,ELFront,ELRear,AWPivot joint;
     class LPConcrete,ELConcrete,AWConcrete,LPArm,LPGrip,ELHandle,ELRearLink,AWLeg part;
@@ -86,22 +91,28 @@ graph TD
 
 ---
 
-## 3. Komponen Scenery Urban Green Park
+## 3. Komponen Scenery Urban Green Park & Danau Alami
 
 1. **Lantai Kebugaran Karet Merah Bata (*EPDM Tartan Mat*):**
    * Pelat persegi panjang ($10.4\text{ m} \times 4.8\text{ m}$) dengan tepi pembatas gelap dan garis pemisah antar-alat kebugaran.
 2. **Paving Track Melingkar (*Jogging Track*):**
    * Lintasan elips melingkar di sekeliling area olahraga ($R_X = 9.4\text{ m}, R_Z = 6.6\text{ m}$, lebar $1.45\text{ m}$) dengan pembatas batu *kerb*.
-   * Dilengkapi 4 jalur paving penghubung (*access paths*) dari jogging track ke matras karet.
+   * Dilengkapi jalur paving penghubung (*access paths*) dari jogging track ke matras karet dan ke dermaga danau.
 3. **Pohon Peneduh Rimbun (*Shade Trees*):**
-   * 6 pohon peneduh dengan batang bercabang dan tajuk daun bertumpuk (*multi-sphere canopy*) bergradasi hijau tua dan hijau muda cerah.
+   * 6 pohon peneduh di sekitar track dan 2 pohon peneduh tepi danau dengan tajuk daun bertumpuk bergradasi hijau tua dan hijau muda cerah.
 4. **Bangku Taman Kayu (*Park Benches*):**
-   * 3 bangku taman ergonomis dengan rangka kaki besi hitam, 4 bilah kayu jati untuk dudukan, dan 3 bilah sandaran punggung.
+   * 3 bangku taman ergonomis di area fitness, 1 bangku santai di ujung dermaga, dan 1 bangku di bawah naungan pohon tepi danau selatan.
 5. **Lampu Tiang Taman (*Streetlamps*):**
-   * 4 tiang lentera klasik setinggi $3.4\text{ m}$ dengan bohlam lentera bercahaya hangat (*unlit glow*).
-6. **Fasilitas Pelengkap:**
+   * 4 tiang lentera klasik setinggi $3.4\text{ m}$ serta 1 tiang lentera pintu masuk dermaga dengan bohlam lentera bercahaya hangat (*unlit glow*).
+6. **Kawasan Danau Alami Taman (*Scenic Park Lake & Waterfront*):**
+   * **Cekungan & Air Berkilau (*Lake Basin & Layered Water*):** 5 cekungan elips organik berlapis pasir tepi danau, air dangkal toska, serta air dalam berkilau dengan pantulan spekular matahari (*Blinn-Phong specular*).
+   * **Promenade & Tanggul Batu (*Shoreline Promenade & Boulders*):** Jalur paving pejalan kaki menyusuri tepi danau dan deretan bebatuan kali alami di sepanjang garis air.
+   * **Dermaga Kayu (*Lakeside Pier*):** Jembatan dermaga kayu yang menjorok ke danau dengan tiang pancang kayu, 26 bilah papan geladak, pagar kayu pengaman, bollard tambat, dan bangku pandang.
+   * **Perahu Dayung Tradisional (*Moored Wooden Rowboat*):** Perahu kayu klasik yang tertambat di sisi dermaga lengkap dengan bangku duduk, sepasang dayung kayu, dan tali tambat.
+   * **Ekosistem Air (*Water Flora & Fauna*):** Koloni bunga teratai mekar merah muda dengan daun mengapung, rumpun tanaman gelagah rawa (*cattails*), sepasang angsa putih anggun berenang, dan air mancur aerasi tengah danau dengan 8 semburan lengkung.
+7. **Fasilitas Pelengkap:**
    * Semak-semak hias rendah di kaki pohon dan tepi jalur.
-   * Papan nama/informasi selamat datang di depan pintu masuk.
+   * Papan informasi selamat datang di depan pintu masuk.
    * Tempat sampah pilah dua tabung (organik & anorganik/daur ulang botol).
 
 ---

@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 /**
  * UI Controls, Interaction Listeners, WASD Keyboard Navigation,
@@ -475,7 +475,25 @@ function setupUI(state, cam, sceneData, canvas) {
     cam.target[1] = 1.1;
     cam.target[2] = 0;
   }
+  function viewLakeCamera() {
+    cam.yaw = 52;
+    cam.pitch = 22;
+    cam.dist = 18.0;
+    cam.target[0] = -12.5;
+    cam.target[1] = 1.0;
+    cam.target[2] = 0.5;
+  }
+  function viewOverviewCamera() {
+    cam.yaw = 35;
+    cam.pitch = 30;
+    cam.dist = 28.0;
+    cam.target[0] = -6.0;
+    cam.target[1] = 0.8;
+    cam.target[2] = 0.0;
+  }
   document.getElementById('btnResetCamera')?.addEventListener('click', resetCamera);
+  document.getElementById('btnViewLake')?.addEventListener('click', viewLakeCamera);
+  document.getElementById('btnViewOverview')?.addEventListener('click', viewOverviewCamera);
 
   canvas.addEventListener('pointermove', e => {
     if (!dragging) return;
@@ -503,7 +521,7 @@ function setupUI(state, cam, sceneData, canvas) {
 
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    cam.dist = clamp(cam.dist * Math.exp(e.deltaY * 0.001), 3, 26);
+    cam.dist = clamp(cam.dist * Math.exp(e.deltaY * 0.001), 3, 45);
     const minP = getMinPitch();
     if (cam.pitch < minP) cam.pitch = minP;
   }, { passive: false });
@@ -524,12 +542,17 @@ function setupUI(state, cam, sceneData, canvas) {
 
     elTree.innerHTML =
 `Root (World Space)
-├─ UrbanParkEnvironmentNode (Scenery Taman)
-│   ├─ FitnessRubberPad (Lantai Karet Merah Bata)
+├─ UrbanParkEnvironmentNode (Scenery Taman & Danau)
+│   ├─ FitnessPad (Lantai Karet Merah Bata)
 │   ├─ JoggingTrackLoop (Paving Melingkar)
 │   ├─ ShadeTreesGroup (6 Pohon Peneduh)
 │   ├─ ParkBenchesGroup (3 Bangku Kayu)
-│   └─ StreetlampsGroup (4 Lampu Tiang)
+│   ├─ StreetlampsGroup (4 Lampu Tiang)
+│   └─ LakeScenicArea (Kawasan Danau Berkilau)
+│       ├─ LakeBasinAndWater (Cekungan & Air Biru Toska)
+│       ├─ LakesidePromenade (Jalur Paving & Bebatuan)
+│       ├─ LakesidePier (Dermaga Kayu & Perahu Dayung)
+│       └─ LakeFloraFauna (Teratai, Gelagah, Angsa & Air Mancur)
 │
 ├─ ${lpTag} (X=${state.latPullPos[0].toFixed(1)})
 │   ├─ <b>ConcreteBase</b>

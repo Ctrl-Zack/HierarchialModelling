@@ -71,7 +71,8 @@ async function initShaders(gl) {
   [
     'u_ModelMatrix', 'u_ViewMatrix', 'u_ProjectionMatrix', 'u_NormalMatrix',
     'u_Color', 'u_LightDir', 'u_CameraPos', 'u_FogColor',
-    'u_Shininess', 'u_SpecStrength', 'u_Unlit'
+    'u_Shininess', 'u_SpecStrength', 'u_Unlit',
+    'u_IsWater', 'u_Time'
   ].forEach(n => {
     U[n] = gl.getUniformLocation(program, n);
   });

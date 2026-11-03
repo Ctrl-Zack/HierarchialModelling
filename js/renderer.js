@@ -11,6 +11,7 @@ function drawMesh(gl, U, mesh, model, mat, unlit = 0) {
   gl.uniform1f(U.u_Shininess, mat.shine || 32);
   gl.uniform1f(U.u_SpecStrength, mat.spec || 0);
   gl.uniform1i(U.u_Unlit, unlit);
+  gl.uniform1i(U.u_IsWater, mat.isWater ? 1 : 0);
 
   gl.bindVertexArray(mesh.vao);
   if (mesh.indexed) {
