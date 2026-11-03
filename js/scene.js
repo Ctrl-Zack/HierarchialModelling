@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 /**
  * Shared scene graph utilities, materials, and hierarchy construction.
@@ -6,14 +6,30 @@
  */
 
 const MAT = {
-  blue:       { color: [0.10, 0.24, 0.80], shine: 60,  spec: 0.65 },   // rangka tiang biru
-  yellow:     { color: [0.98, 0.84, 0.04], shine: 40,  spec: 0.50 },   // aksen kuning
-  silver:     { color: [0.84, 0.86, 0.90], shine: 120, spec: 1.00 },   // pipa silver stang gawang siku
-  black:      { color: [0.06, 0.06, 0.07], shine: 24,  spec: 0.35 },   // grip karet hitam
-  pedalPlate: { color: [0.36, 0.38, 0.44], shine: 28,  spec: 0.28 },   // pelat pijakan kaki abu-abu
-  rod:        { color: [0.82, 0.84, 0.88], shine: 80,  spec: 0.70 },   // link rod perak
-  grass:      { color: [0.30, 0.50, 0.20], shine: 4,   spec: 0.02 },   // rumput hijau
-  concrete:   { color: [0.65, 0.65, 0.63], shine: 10,  spec: 0.08 }    // alas beton abu-abu
+  blue:          { color: [0.10, 0.24, 0.80], shine: 60,  spec: 0.65 },   // rangka tiang biru
+  yellow:        { color: [0.98, 0.84, 0.04], shine: 40,  spec: 0.50 },   // aksen kuning
+  silver:        { color: [0.84, 0.86, 0.90], shine: 120, spec: 1.00 },   // pipa silver stang gawang siku
+  black:         { color: [0.06, 0.06, 0.07], shine: 24,  spec: 0.35 },   // grip karet hitam
+  pedalPlate:    { color: [0.36, 0.38, 0.44], shine: 28,  spec: 0.28 },   // pelat pijakan kaki abu-abu
+  rod:           { color: [0.82, 0.84, 0.88], shine: 80,  spec: 0.70 },   // link rod perak
+  grass:         { color: [0.30, 0.50, 0.20], shine: 4,   spec: 0.02 },   // rumput hijau
+  concrete:      { color: [0.65, 0.65, 0.63], shine: 10,  spec: 0.08 },   // alas beton abu-abu
+
+  // Material Urban Green Park:
+  rubberMat:     { color: [0.72, 0.26, 0.18], shine: 10,  spec: 0.08 },   // lantai karet merah bata (EPDM)
+  rubberBorder:  { color: [0.50, 0.18, 0.13], shine: 10,  spec: 0.08 },   // garis tepi karet gelap
+  pavingTrack:   { color: [0.76, 0.73, 0.66], shine: 14,  spec: 0.10 },   // paving track melingkar
+  pavingBorder:  { color: [0.55, 0.53, 0.48], shine: 10,  spec: 0.06 },   // tepi batu paving
+  woodBench:     { color: [0.58, 0.34, 0.16], shine: 18,  spec: 0.15 },   // kayu bangku taman (warm teak)
+  treeTrunk:     { color: [0.34, 0.22, 0.12], shine: 8,   spec: 0.04 },   // batang kayu pohon gelap
+  treeCrownDark: { color: [0.15, 0.36, 0.12], shine: 6,   spec: 0.04 },   // tajuk daun hijau rimbun tua
+  treeCrownLight:{ color: [0.28, 0.52, 0.18], shine: 6,   spec: 0.04 },   // tajuk daun hijau segar terang
+  bush:          { color: [0.20, 0.44, 0.15], shine: 6,   spec: 0.04 },   // semak-semak taman
+  lampMetal:     { color: [0.12, 0.14, 0.16], shine: 55,  spec: 0.55 },   // besi hitam tiang lampu & kaki bangku
+  lampGlow:      { color: [1.00, 0.94, 0.60], shine: 1,   spec: 0.00 },   // kaca/bohlam lentera lampu menyala
+  signPlaque:    { color: [0.88, 0.82, 0.72], shine: 10,  spec: 0.06 },   // pelat papan informasi
+  signGreen:     { color: [0.12, 0.42, 0.22], shine: 30,  spec: 0.25 },   // aksen hijau papan
+  trashCanBody:  { color: [0.16, 0.38, 0.25], shine: 35,  spec: 0.30 }    // tempat sampah taman hijau
 };
 
 function pipeMatrix(p1, p2, r) {
@@ -44,6 +60,7 @@ class Node {
     this.parts = [];
     this.children = [];
     this.world = Mat4.identity();
+    this.visible = true;
     this._meshes = meshesRef;
   }
 
@@ -62,25 +79,25 @@ class Node {
     return m;
   }
 
-  addPipe(p1, p2, r, mat) {
-    this.parts.push({ mesh: this._meshes.cylinder, matrix: pipeMatrix(p1, p2, r), mat });
+  addPipe(p1, p2, r, mat, unlit = 0) {
+    this.parts.push({ mesh: this._meshes.cylinder, matrix: pipeMatrix(p1, p2, r), mat, unlit });
     return this;
   }
 
-  addBox(size, pos, mat, rotDeg = [0, 0, 0]) {
+  addBox(size, pos, mat, rotDeg = [0, 0, 0], unlit = 0) {
     let m = Mat4.translation(pos[0], pos[1], pos[2]);
     m = Mat4.rotateY(m, rotDeg[1] * DEG);
     m = Mat4.rotateX(m, rotDeg[0] * DEG);
     m = Mat4.rotateZ(m, rotDeg[2] * DEG);
     m = Mat4.scale(m, size[0], size[1], size[2]);
-    this.parts.push({ mesh: this._meshes.box, matrix: m, mat });
+    this.parts.push({ mesh: this._meshes.box, matrix: m, mat, unlit });
     return this;
   }
 
-  addSphere(pos, size, mat) {
+  addSphere(pos, size, mat, unlit = 0) {
     const s = typeof size === 'number' ? [size, size, size] : size;
     const m = Mat4.scale(Mat4.translation(pos[0], pos[1], pos[2]), s[0], s[1], s[2]);
-    this.parts.push({ mesh: this._meshes.sphere, matrix: m, mat });
+    this.parts.push({ mesh: this._meshes.sphere, matrix: m, mat, unlit });
     return this;
   }
 }
@@ -120,5 +137,9 @@ function buildSceneHierarchy(meshes) {
   airWalkerBase.rotation = [0, DEFAULT_BASES.airWalker.rotY, 0];
   const airWalker = buildAirWalkerMachine(airWalkerBase, meshes);
 
-  return { root, latPull, elliptical, airWalker };
+  // 4. Urban Green Park Scenery (Lantai Karet, Paving Track, Pohon, Bangku, Lampu)
+  const environmentNode = root.add(createNode('UrbanParkEnvironmentNode', meshes));
+  buildUrbanParkEnvironment(environmentNode, meshes);
+
+  return { root, latPull, elliptical, airWalker, environmentNode };
 }

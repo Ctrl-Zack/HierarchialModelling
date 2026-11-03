@@ -212,6 +212,10 @@ function setupUI(state, cam, sceneData, canvas) {
     state.showGrid = e.target.checked;
   });
 
+  document.getElementById('chkScenery')?.addEventListener('change', e => {
+      state.showScenery = e.target.checked;
+    });
+
   // =========================================================================
   // SISTEM KONTROL KEYBOARD WASD
   // =========================================================================
@@ -520,6 +524,13 @@ function setupUI(state, cam, sceneData, canvas) {
 
     elTree.innerHTML =
 `Root (World Space)
+├─ UrbanParkEnvironmentNode (Scenery Taman)
+│   ├─ FitnessRubberPad (Lantai Karet Merah Bata)
+│   ├─ JoggingTrackLoop (Paving Melingkar)
+│   ├─ ShadeTreesGroup (6 Pohon Peneduh)
+│   ├─ ParkBenchesGroup (3 Bangku Kayu)
+│   └─ StreetlampsGroup (4 Lampu Tiang)
+│
 ├─ ${lpTag} (X=${state.latPullPos[0].toFixed(1)})
 │   ├─ <b>ConcreteBase</b>
 │   └─ <b>MainFrame</b> (Tiang Biru)

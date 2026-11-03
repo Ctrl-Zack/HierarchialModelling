@@ -1,7 +1,7 @@
-﻿'use strict';
+'use strict';
 
 /**
- * Application Entry Point & Main Render Loop for 3 Outdoor Fitness Machines
+ * Application Entry Point & Main Render Loop for 3 Outdoor Fitness Machines + Urban Park Scenery
  */
 
 async function main() {
@@ -30,9 +30,9 @@ async function main() {
   // 2. Procedural Meshes
   const meshes = initMeshes(gl);
 
-  // 3. Scene Graph & Hierarchy (3 Mesin Bersebelahan di Bawah Root)
+  // 3. Scene Graph & Hierarchy (3 Mesin Bersebelahan + Urban Park Scenery di Bawah Root)
   const sceneData = buildSceneHierarchy(meshes);
-  const { root, latPull, elliptical, airWalker } = sceneData;
+  const { root, latPull, elliptical, airWalker, environmentNode } = sceneData;
 
   // 4. Inisialisasi Kinematika Awal
   latPull.sides.forEach(S => initSide(S, latPull.mainFrame));
@@ -66,10 +66,11 @@ async function main() {
     // Tampilan
     showHighlight: true,
     showAxes: false,
-    showGrid: true
+    showGrid: false,
+    showScenery: true
   };
 
-  const cam = { yaw: 24, pitch: 18, dist: 11.2, target: [0, 1.1, 0] };
+  const cam = { yaw: 24, pitch: 18, dist: 12.0, target: [0, 1.1, 0] };
 
   // 6. UI & Keyboard Input Setup
   const { elPullAngle, elStrideAngle, elAirWalkerAngle, processKeyboardInput, updateUI } = setupUI(state, cam, sceneData, canvas);
@@ -165,6 +166,11 @@ async function main() {
     drawMesh(gl, U, meshes.box, Mat4.multiply(Mat4.translation(0, -0.02, 0), Mat4.scaling(160, 0.04, 160)), MAT.grass);
     if (state.showGrid) {
       drawMesh(gl, U, meshes.grid, Mat4.translation(0, 0.006, 0), { color: [0.24, 0.40, 0.17] }, 1);
+    }
+
+    // Toggle visibilitas scenery taman
+    if (environmentNode) {
+      environmentNode.visible = state.showScenery;
     }
 
     // Traversal Seluruh Pohon Hierarki Mulai dari Root (Matrix Stack)
