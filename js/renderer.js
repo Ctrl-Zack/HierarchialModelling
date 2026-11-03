@@ -21,11 +21,13 @@ function drawMesh(gl, U, mesh, model, mat, unlit = 0) {
 }
 
 function drawNode(gl, U, node, parentWorld) {
+  if (node.visible === false) return;
+
   const world = Mat4.multiply(parentWorld, node.localMatrix());
   node.world = world;
 
   for (const part of node.parts) {
-    drawMesh(gl, U, part.mesh, Mat4.multiply(world, part.matrix), part.mat);
+    drawMesh(gl, U, part.mesh, Mat4.multiply(world, part.matrix), part.mat, part.unlit || 0);
   }
 
   for (const child of node.children) {

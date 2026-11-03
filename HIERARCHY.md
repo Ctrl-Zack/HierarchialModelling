@@ -1,26 +1,27 @@
 # Dokumentasi Hierarki Objek dan Mekanika Kinematika
-**Mesin Outdoor Fitness: Lat Pull Down, Outdoor Elliptical, & Outdoor Air Walker**  
+**Mesin Outdoor Fitness: Lat Pull Down, Outdoor Elliptical, & Outdoor Air Walker + Urban Green Park Scenery**  
 *Mata Kuliah Grafika Komputer – Implementasi WebGL2 & Scene Graph (Hierarchical Modelling)*
 
 ---
 
 ## 1. Konsep Hierarki Dunia & Penempatan Objek (*World Space & Placement*)
 
-Di dalam dunia 3D (*World Space*), terdapat tiga objek peralatan kebugaran *outdoor* yang ditempatkan saling berdampingan di atas satu lantai rumput hijau yang sama:
+Di dalam dunia 3D (*World Space*), terdapat tiga objek peralatan kebugaran *outdoor* yang ditempatkan saling berdampingan di atas landasan karet kebugaran dan dikelilingi taman kota (*Urban Green Park*):
 
 1. **Mesin 1:** `LatPullBaseNode` (*Lat Pull Down / Chest Press*) – Default: $X = -3.2\text{ m}$.
-2. **Mesin 2:** `EllipticalBaseNode` (*Outdoor Elliptical Trainer*) – Default: $X = 0.0\text{ m}$.
+2. **Mesin 2:** `EllipticalBaseNode` (*Outdoor Elliptical Trainer*) – Default: $X = +0.5\text{ m}$.
 3. **Mesin 3:** `AirWalkerBaseNode` (*Outdoor Air Walker / Space Walker*) – Default: $X = +3.2\text{ m}$.
+4. **Scenery:** `UrbanParkEnvironmentNode` – Landasan matras karet merah bata (*EPDM*), *jogging track* paving melingkar, 6 pohon peneduh rimbun, 3 bangku taman, 4 lampu tiang menyala, semak-semak, dan plang informasi.
 
 ### Sifat Pewarisan Matriks (*Matrix Stack Property*):
 * **Pemindahan Base (Parent Node / Keyboard WASD):**
   Setiap alat kebugaran dapat dipilih secara bergantian (tombol `1`, `2`, atau `3`). Ketika koordinat translasi $[X, Y, Z]$ atau rotasi $Y$ dari node `Base` diubah (melalui keyboard `W/A/S/D` & `Q/E` atau slider antarmuka), seluruh komponen di atasnya—meliputi alas beton abu-abu, rangka tiang biru, poros engsel, tuas stang, rel, kursi, hingga pedal—**otomatis ikut berpindah dan berputar bersama base secara serempak**. Hal ini terjadi karena perkalian matriks secara berjenjang:
   $$\mathbf{M}_{\text{child\_world}} = \mathbf{M}_{\text{base\_world}} \times \mathbf{M}_{\text{child\_local}}$$
 * **Pergerakan Sendi / Lengan (Child Joints):**
-  Sebaliknya, ketika sudut stang ditarik atau diayunkan maju-mundur, perubahan transformasi lokal hanya terjadi pada level *joint/child node* ke bawah. **Alas beton dan rangka dasar tetap diam kokoh di tempatnya di atas tanah hijau.**
+  Sebaliknya, ketika sudut stang ditarik atau diayunkan maju-mundur, perubahan transformasi lokal hanya terjadi pada level *joint/child node* ke bawah. **Alas beton dan rangka dasar tetap diam kokoh di tempatnya di atas matras kebugaran.**
 
 ### Pemisahan File Objek
-Builder tiap mesin disimpan terpisah di `js/objects/lat-pull.js`, `js/objects/elliptical.js`, dan `js/objects/air-walker.js`. Utilitas bersama seperti `Node`, material, serta `buildSceneHierarchy` tetap berada di `js/scene.js`.
+Builder tiap mesin disimpan terpisah di `js/objects/lat-pull.js`, `js/objects/elliptical.js`, `js/objects/air-walker.js`, dan lingkungan taman di `js/objects/environment.js`. Utilitas bersama seperti `Node`, material, serta `buildSceneHierarchy` tetap berada di `js/scene.js`.
 
 ---
 
@@ -29,6 +30,16 @@ Builder tiap mesin disimpan terpisah di `js/objects/lat-pull.js`, `js/objects/el
 ```mermaid
 graph TD
     Root["Root (World Coordinate / Ground Rumput Hijau)"]
+
+    %% Cabang Scenery Taman
+    Root --> Env["UrbanParkEnvironmentNode (Scenery Taman)"]
+    Env --> Pad["FitnessRubberPad (Matras Karet EPDM Merah Bata)"]
+    Env --> Track["JoggingTrackLoop (Paving Track Melingkar R=9.4m)"]
+    Env --> Trees["ShadeTreesGroup (6 Pohon Peneduh Rimbun)"]
+    Env --> Benches["ParkBenchesGroup (3 Bangku Kayu & Besi)"]
+    Env --> Lamps["StreetlampsGroup (4 Tiang Lampu Lentera Menyala)"]
+    Env --> Bushes["ParkBushesGroup (Semak Lanskap Asri)"]
+    Env --> Amen["ParkAmenities (Plang Info & Tempat Sampah Pilah)"]
 
     %% Cabang Mesin 1: Lat Pull Down
     Root --> LPBase["LatPullBaseNode (Parent Mesin 1: Posisi X, Z & Rotasi Y)"]
@@ -59,12 +70,14 @@ graph TD
     AWPivot --> AWLeg["AirWalkerLeg (Pipa Pendulum Gantung & Pelat Pijakan Kaki)"]
 
     classDef world fill:#15803d,stroke:#22c55e,stroke-width:2px,color:#fff;
+    classDef env fill:#047857,stroke:#10b981,stroke-width:2px,color:#fff;
     classDef base fill:#4338ca,stroke:#6366f1,stroke-width:2px,color:#fff;
     classDef joint fill:#d97706,stroke:#fbbf24,stroke-width:2px,color:#fff;
     classDef part fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#fff;
     classDef link fill:#0f766e,stroke:#14b8a6,stroke-width:2px,stroke-dasharray: 5 5,color:#fff;
 
     class Root world;
+    class Env,Pad,Track,Trees,Benches,Lamps,Bushes,Amen env;
     class LPBase,ELBase,AWBase,LPMain,ELMain,AWMain base;
     class LPPivot,LPRailU,LPSeat,ELFront,ELRear,AWPivot joint;
     class LPConcrete,ELConcrete,AWConcrete,LPArm,LPGrip,ELHandle,ELRearLink,AWLeg part;
@@ -73,13 +86,23 @@ graph TD
 
 ---
 
-## 3. Desain Lengan Overhead Lat Pull Down (Sesuai Foto Asli)
+## 3. Komponen Scenery Urban Green Park
 
-Sesuai dengan referensi foto peralatan *outdoor fitness* yang diunggah, lengan penarik (`MovingArm`) dirancang sebagai **Wide-Grip Overhead Lat Pulldown Bar**:
-1. **Dual Boom Struts:** Dua pipa perak memanjang ke depan dari poros engsel atas ($X = 0 \to 0.84\text{ m}$) dengan penguat gusset.
-2. **Palang Melintang Tengah:** Palang lurus melintang selebar $0.68\text{ m}$ ($Z = -0.34\text{ m} \to +0.34\text{ m}$).
-3. **Sayap Pegangan Lebar (Angled Wide Grips ~18°):** Ujung luar stang menekuk miring ke bawah selebar total $1.16\text{ m}$ ($Z = \pm 0.58\text{ m}$) lengkap dengan karet grip hitam ergonomis untuk tarikan punggung (*latissimus dorsi*).
-4. **Pegangan Sempit Sejajar (Parallel Neutral Grips):** Dua batang pegangan horizontal di bagian dalam ($Z = \pm 0.15\text{ m}$) dengan karet grip hitam untuk variasi tarikan *neutral grip*.
+1. **Lantai Kebugaran Karet Merah Bata (*EPDM Tartan Mat*):**
+   * Pelat persegi panjang ($10.4\text{ m} \times 4.8\text{ m}$) dengan tepi pembatas gelap dan garis pemisah antar-alat kebugaran.
+2. **Paving Track Melingkar (*Jogging Track*):**
+   * Lintasan elips melingkar di sekeliling area olahraga ($R_X = 9.4\text{ m}, R_Z = 6.6\text{ m}$, lebar $1.45\text{ m}$) dengan pembatas batu *kerb*.
+   * Dilengkapi 4 jalur paving penghubung (*access paths*) dari jogging track ke matras karet.
+3. **Pohon Peneduh Rimbun (*Shade Trees*):**
+   * 6 pohon peneduh dengan batang bercabang dan tajuk daun bertumpuk (*multi-sphere canopy*) bergradasi hijau tua dan hijau muda cerah.
+4. **Bangku Taman Kayu (*Park Benches*):**
+   * 3 bangku taman ergonomis dengan rangka kaki besi hitam, 4 bilah kayu jati untuk dudukan, dan 3 bilah sandaran punggung.
+5. **Lampu Tiang Taman (*Streetlamps*):**
+   * 4 tiang lentera klasik setinggi $3.4\text{ m}$ dengan bohlam lentera bercahaya hangat (*unlit glow*).
+6. **Fasilitas Pelengkap:**
+   * Semak-semak hias rendah di kaki pohon dan tepi jalur.
+   * Papan nama/informasi selamat datang di depan pintu masuk.
+   * Tempat sampah pilah dua tabung (organik & anorganik/daur ulang botol).
 
 ---
 
