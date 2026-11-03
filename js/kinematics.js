@@ -19,8 +19,8 @@ function chainMatrix(node, stop) {
   return m;
 }
 
-const armPoint  = (S, mainFrame) => Mat4.transformPoint(chainMatrix(S.arm, mainFrame), LP_ARM_ATTACH);
-const seatPoint = (S, mainFrame) => Mat4.transformPoint(chainMatrix(S.seat, mainFrame), LP_SEAT_ATTACH);
+const armPoint  = (S, mainFrame) => Mat4.transformPoint(chainMatrix(S.arm, mainFrame), S.armAttach);
+const seatPoint = (S, mainFrame) => Mat4.transformPoint(chainMatrix(S.seat, mainFrame), S.seatAttach);
 
 function initSide(S, mainFrame) {
   S.pivot.rotation[2] = LP_REST_DEG;
