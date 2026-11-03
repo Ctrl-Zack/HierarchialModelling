@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 /**
  * Shared scene graph utilities, materials, and hierarchy construction.
@@ -74,6 +74,25 @@ class Node {
     m = Mat4.rotateZ(m, rotDeg[2] * DEG);
     m = Mat4.scale(m, size[0], size[1], size[2]);
     this.parts.push({ mesh: this._meshes.box, matrix: m, mat });
+    return this;
+  }
+
+  /**
+   * addPrism — Prisma segitiga siku-siku.
+   * size = [legX, legY, depth]
+   * pos = posisi sudut siku-siku (default: origin='corner') atau centroid (origin='centroid')
+   * rotDeg = [rx, ry, rz] rotasi dalam derajat
+   */
+  addPrism(size, pos, mat, rotDeg = [0, 0, 0], origin = 'corner') {
+    let m = Mat4.translation(pos[0], pos[1], pos[2]);
+    m = Mat4.rotateY(m, rotDeg[1] * DEG);
+    m = Mat4.rotateX(m, rotDeg[0] * DEG);
+    m = Mat4.rotateZ(m, rotDeg[2] * DEG);
+    m = Mat4.scale(m, size[0], size[1], size[2]);
+    if (origin === 'centroid') {
+      m = Mat4.multiply(m, Mat4.translation(-1/3, -1/3, 0));
+    }
+    this.parts.push({ mesh: this._meshes.prism, matrix: m, mat });
     return this;
   }
 

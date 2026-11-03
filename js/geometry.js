@@ -104,6 +104,52 @@ function makeSphere(gl, stacks = 14, slices = 24) {
   return createMesh(gl, v, idx);
 }
 
+// Prisma segitiga unit: segitiga siku-siku di bidang XY, diekstrusi sepanjang Z.
+// Sudut siku-siku di origin, kaki sepanjang +X (1) dan +Y (1), z dari -0.5 s/d +0.5.
+function makeTriangularPrism(gl) {
+  const v = [], idx = [];
+  // Tiga titik segitiga di z = +0.5 dan z = -0.5
+  //  v0 = (0,0)  v1 = (1,0)  v2 = (0,1)
+  const tri = [[0, 0], [1, 0], [0, 1]];
+  const zH = 0.5;
+
+  // --- Dua tutup segitiga (front z=+0.5 dan back z=-0.5) ---
+  // Front face (normal +Z)
+  for (const [x, y] of tri) v.push(x, y, zH, 0, 0, 1);
+  idx.push(0, 1, 2);
+  // Back face (normal -Z) — winding terbalik
+  for (const [x, y] of tri) v.push(x, y, -zH, 0, 0, -1);
+  idx.push(5, 4, 3);
+
+  // --- Tiga sisi persegi panjang ---
+  // Sisi 0: v0→v1  (bottom, normal -Y)
+  let b = v.length / 6;
+  v.push(0, 0, -zH, 0, -1, 0);
+  v.push(1, 0, -zH, 0, -1, 0);
+  v.push(1, 0,  zH, 0, -1, 0);
+  v.push(0, 0,  zH, 0, -1, 0);
+  idx.push(b, b+1, b+2, b, b+2, b+3);
+
+  // Sisi 1: v1→v2  (hypotenuse, normal = normalize(1,1,0))
+  b = v.length / 6;
+  const hn = 1 / Math.SQRT2;
+  v.push(1, 0, -zH, hn, hn, 0);
+  v.push(0, 1, -zH, hn, hn, 0);
+  v.push(0, 1,  zH, hn, hn, 0);
+  v.push(1, 0,  zH, hn, hn, 0);
+  idx.push(b, b+1, b+2, b, b+2, b+3);
+
+  // Sisi 2: v2→v0  (left, normal -X)
+  b = v.length / 6;
+  v.push(0, 1, -zH, -1, 0, 0);
+  v.push(0, 0, -zH, -1, 0, 0);
+  v.push(0, 0,  zH, -1, 0, 0);
+  v.push(0, 1,  zH, -1, 0, 0);
+  idx.push(b, b+1, b+2, b, b+2, b+3);
+
+  return createMesh(gl, v, idx);
+}
+
 // Grid lantai (GL_LINES), digambar unlit
 function makeGrid(gl, half = 7, step = 1) {
   const v = [];
@@ -119,6 +165,7 @@ function initMeshes(gl) {
     cylinder: makeCylinder(gl),
     box: makeBox(gl),
     sphere: makeSphere(gl),
+    prism: makeTriangularPrism(gl),
     grid: makeGrid(gl)
   };
 }
