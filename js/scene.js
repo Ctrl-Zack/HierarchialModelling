@@ -94,7 +94,26 @@ class Node {
     return this;
   }
 
-  addSphere(pos, size, mat, unlit = 0) {
+  /**
+   * addPrism — Prisma segitiga siku-siku.
+   * size = [legX, legY, depth]
+   * pos = posisi sudut siku-siku (default: origin='corner') atau centroid (origin='centroid')
+   * rotDeg = [rx, ry, rz] rotasi dalam derajat
+   */
+  addPrism(size, pos, mat, rotDeg = [0, 0, 0], origin = 'corner') {
+    let m = Mat4.translation(pos[0], pos[1], pos[2]);
+    m = Mat4.rotateY(m, rotDeg[1] * DEG);
+    m = Mat4.rotateX(m, rotDeg[0] * DEG);
+    m = Mat4.rotateZ(m, rotDeg[2] * DEG);
+    m = Mat4.scale(m, size[0], size[1], size[2]);
+    if (origin === 'centroid') {
+      m = Mat4.multiply(m, Mat4.translation(-1/3, -1/3, 0));
+    }
+    this.parts.push({ mesh: this._meshes.prism, matrix: m, mat });
+    return this;
+  }
+
+  addSphere(pos, size, mat) {
     const s = typeof size === 'number' ? [size, size, size] : size;
     const m = Mat4.scale(Mat4.translation(pos[0], pos[1], pos[2]), s[0], s[1], s[2]);
     this.parts.push({ mesh: this._meshes.sphere, matrix: m, mat, unlit });

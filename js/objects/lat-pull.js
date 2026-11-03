@@ -6,13 +6,14 @@ const LP_GROUND = 0.04;
 const LP_COL_R = 0.08;
 const LP_PLATE_Y = 2.18;
 const LP_Z0 = 0.095;
-const LP_PIVOT_X = 0.22, LP_PIVOT_Y = 2.24;
+const LP_PIVOT_X = 0.32, LP_PIVOT_Y = 2.24;
+const LP_PIVOT_SHAFT_HALF = 0.18;
 const LP_REST_DEG = 4;
-const LP_PIN_ARM = 0.08;
-const LP_ROD_Z = LP_Z0 + LP_PIN_ARM;
+const LP_PIN_ARM = 0;
+const LP_ROD_Z = 0;
 const LP_RAIL_X = 0.13;
 const LP_RAIL_Y = [0.25, 0.50];
-const LP_RAIL_LEN = 0.36;
+const LP_RAIL_LEN = 0.50;
 const LP_LEG_X = 0.07;
 const LP_ARM_ATTACH = [-0.12, -0.12, LP_PIN_ARM];
 
@@ -27,7 +28,7 @@ function lpStem(t) {
   );
 }
 
-const LP_SEAT_ATTACH = [lpStem(0.8)[0], lpStem(0.8)[1], LP_ROD_Z];
+const LP_SEAT_ATTACH = [lpStem(1)[0] - 0.06, lpStem(1.3)[1], LP_ROD_Z];
 
 function buildLatPullMachine(baseNode, meshes) {
   const D = Math.PI / 180;
@@ -67,15 +68,18 @@ function buildLatPullMachine(baseNode, meshes) {
     );
   }
 
-  // Bracket silhouette: trapezoidal blue perimeter with a compact center plate.
-  const bracket = [[-0.27, 2.28], [0.27, 2.28], [0.10, 2.08], [-0.10, 2.08]];
-  mainFrame.addBox([0.25, 0.12, 0.035], [0, LP_PLATE_Y, LP_Z0], MAT.blue);
-  for (let i = 0; i < bracket.length; i++) {
-    const a = bracket[i], b = bracket[(i + 1) % bracket.length];
-    mainFrame.addPipe([a[0], a[1], LP_Z0], [b[0], b[1], LP_Z0], 0.025, MAT.blue);
+  const plateThickness = 0.035;
+  for (const zSign of [1, -1]) {
+    const zPos = zSign * LP_Z0;
+    mainFrame.addBox([0.30, 0.20, plateThickness], [0, LP_PLATE_Y, zPos], MAT.blue);
+
+    mainFrame.addPrism([0.18, 0.20, plateThickness], [-0.15, 2.28, zPos], MAT.blue, [0, 0, 180]);
+    mainFrame.addPrism([0.20, 0.18, plateThickness], [0.15, 2.28, zPos], MAT.blue, [0, 0, -90]);
+
+    bolt(mainFrame, [-0.10, 2.105, zPos + zSign * 0.024], 0.026);
+    bolt(mainFrame, [0.10, 2.105, zPos + zSign * 0.024], 0.026);
   }
-  bolt(mainFrame, [-0.07, 2.105, LP_Z0 + 0.024], 0.026);
-  bolt(mainFrame, [0.07, 2.105, LP_Z0 + 0.024], 0.026);
+
 
   for (const y of LP_RAIL_Y) {
     mainFrame.addPipe([0, y - 0.04, 0], [0, y + 0.04, 0], LP_COL_R + 0.012, MAT.blue);
@@ -95,31 +99,24 @@ function buildLatPullMachine(baseNode, meshes) {
     const seatAttach = [LP_SEAT_ATTACH[0], LP_SEAT_ATTACH[1], sign * LP_SEAT_ATTACH[2]];
 
     const pivot = mainFrame.add(createNode('UpperPivotNode' + tag, meshes));
-    pivot.translation = [sign * LP_PIVOT_X, LP_PIVOT_Y, LP_Z0];
+    pivot.translation = [sign * LP_PIVOT_X, LP_PIVOT_Y, 0];
     pivot.rotation = [0, yaw, LP_REST_DEG];
-    pivot.addPipe([0, 0, -0.07], [0, 0, 0.07], 0.012, MAT.yellow);
-    bolt(pivot, [0, 0, 0.074], 0.03);
-    bolt(pivot, [0, 0, -0.074], 0.03);
 
     const arm = pivot.add(createNode('MovingArm' + tag, meshes));
-    const armRadius = 0.018, halfSpan = 0.20, bendX = 0.40, gripX = 1.15;
+    const armRadius = 0.018, halfSpan = 0.30, bendX = 0.40, gripX = 1.05;
     for (const zSign of [1, -1]) {
       arm
-        .addPipe([0, 0, zSign * 0.032], [0, 0, zSign * 0.056], 0.05, MAT.silver)
-        .addPipe([0, 0, zSign * 0.044], [bendX, 0, zSign * halfSpan], armRadius, MAT.silver)
-        .addSphere([bendX, 0, zSign * halfSpan], armRadius, MAT.silver)
-        .addPipe([bendX, 0, zSign * halfSpan], [gripX, 0, zSign * halfSpan], armRadius, MAT.yellow)
+        .addPipe([0, 0, zSign * 0.14], [0, 0, zSign * 0.12], 0.05, MAT.silver)
+        .addPipe([0, 0, 0], [0, 0, zSign * 0.12], 0.02, MAT.silver)
+        .addPipe([0.1, 0, 0], [0.1, 0, zSign * halfSpan], armRadius, MAT.silver)
+        .addSphere([0.1, 0, zSign * halfSpan], armRadius, MAT.silver)
+        .addPipe([0.1, 0, zSign * halfSpan], [gripX, 0, zSign * halfSpan], armRadius, MAT.silver)
         .addSphere([gripX, 0, zSign * halfSpan], armRadius, MAT.silver);
     }
     arm
-      .addPipe([0, 0, sign * 0.044], [armAttach[0], armAttach[1], sign * 0.044], 0.014, MAT.silver)
-      .addPipe(
-        [armAttach[0], armAttach[1], sign * 0.044],
-        [armAttach[0], armAttach[1], sign * (LP_PIN_ARM + 0.02)],
-        0.012,
-        MAT.silver
-      );
-    bolt(arm, [armAttach[0], armAttach[1], sign * (LP_PIN_ARM + 0.024)], 0.022);
+      .addPipe([0, 0, 0], [0.1, 0, 0], 0.02, MAT.silver)
+      .addPipe([0, 0, 0], [armAttach[0], armAttach[1], 0], 0.02, MAT.silver);
+    bolt(arm, [armAttach[0], armAttach[1], 0], 0.05);
 
     for (const [index, zSign] of [[1, 1], [2, -1]]) {
       const grip = arm.add(createNode('GripNode' + tag + index, meshes));
@@ -161,12 +158,12 @@ function buildLatPullMachine(baseNode, meshes) {
     disc(seat, [-0.135, 0.81, 0], 0.19, 0.03, 0.19, 98, MAT.silver);
     seat
       .addPipe(
-        [seatAttach[0], seatAttach[1], 0],
-        [seatAttach[0], seatAttach[1], sign * (LP_ROD_Z + 0.02)],
+        [seatAttach[0], seatAttach[1], -0.035],
+        [seatAttach[0], seatAttach[1], 0.035],
         0.013,
         MAT.silver
       );
-    bolt(seat, [seatAttach[0], seatAttach[1], sign * (LP_ROD_Z + 0.024)], 0.022);
+    bolt(seat, [seatAttach[0], seatAttach[1], 0], 0.022);
 
     for (const y of [0, LP_RAIL_Y[0] - LP_RAIL_Y[1]]) {
       for (const zSign of [1, -1]) {
