@@ -1,377 +1,754 @@
-* {
+/* ==========================================================================
+   TUGAS GRAFIKA KOMPUTER: PEMODELAN HIERARKIS 3D
+   Desain: Bersih, Sederhana, Alami (Human-crafted UI)
+   ========================================================================== */
+
+:root {
+  --bg-app:        #101012;
+  --bg-header:     #17171a;
+  --bg-panel:      #1a1a1e;
+  --bg-card:       #212126;
+  --bg-hover:      #2b2b32;
+
+  --border-light:  #292930;
+  --border-base:   #34343d;
+
+  --text-main:     #f4f4f5;
+  --text-muted:    #a1a1aa;
+  --text-dim:      #71717a;
+  --accent:        #eab308;
+  --accent-soft:   rgba(234, 179, 8, 0.15);
+
+  --header-h:      48px;
+  --panel-w:       340px;
+  --font-sans:     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:     ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
-  margin: 0;
-  height: 100%;
-  overflow: hidden;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(#8fc4ec 0%, #cfe6f5 55%, #e8efe4 100%);
-  color: #1e293b;
-  user-select: none;
-}
-
-canvas#glcanvas {
-  position: fixed;
-  inset: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+#topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 50;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-left h1 {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.topbar-divider {
+  color: var(--border-base);
+}
+
+.student-info {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Navigasi Mesin */
+.machine-nav {
+  display: flex;
+  background: var(--bg-app);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.nav-btn {
+  padding: 4px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nav-btn:hover {
+  color: var(--text-main);
+  background: var(--bg-card);
+}
+
+.nav-btn.active {
+  background: var(--bg-card);
+  color: #ffffff;
+  border: 1px solid var(--border-base);
+}
+
+/* Aksi Header */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn {
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: var(--bg-card);
+  border-color: var(--border-base);
+  color: var(--text-main);
+}
+
+.btn-primary:hover {
+  background: var(--bg-hover);
+}
+
+.btn-primary.active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border-light);
+  color: var(--text-muted);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   KANVAS 3D
+   ========================================================================== */
+canvas#glcanvas {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  bottom: 0;
+  right: var(--panel-w);
+  width: auto;
+  height: calc(100% - var(--header-h));
   display: block;
   cursor: grab;
   touch-action: none;
+  background-color: var(--bg-app);
 }
 
 canvas#glcanvas.dragging {
   cursor: grabbing;
 }
 
-/* HUD Bantuan Keyboard Game-Style di Kiri Bawah */
-#hudHelp {
-  position: fixed;
-  left: 18px;
-  bottom: 18px;
-  background: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #e2e8f0;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-size: 11.5px;
-  font-weight: 500;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.hud-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 4px;
-  background: #334155;
-  border: 1px solid #475569;
-  border-radius: 4px;
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #fbbf24;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-
-.hud-sep {
-  color: #64748b;
-  margin: 0 2px;
-}
-
-/* Panel Samping Minimalis & Rapi */
+/* ==========================================================================
+   SIDEBAR KONTROL
+   ========================================================================== */
 #panel {
   position: fixed;
-  top: 16px;
-  right: 16px;
-  width: 295px;
-  max-height: calc(100% - 32px);
-  overflow-y: auto;
-  padding: 14px 14px 12px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
-  font-size: 12px;
-  z-index: 20;
+  top: var(--header-h);
+  right: 0;
+  bottom: 0;
+  width: var(--panel-w);
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 40;
 }
 
-#panel::-webkit-scrollbar {
+#panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#panel-scroll::-webkit-scrollbar {
   width: 5px;
 }
-#panel::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.18);
-  border-radius: 4px;
+#panel-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 3px;
 }
 
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.panel-box {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.box-header {
   margin-bottom: 10px;
 }
 
-.panel-title h1 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
+.box-header.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.panel-title .sub {
-  margin: 1px 0 0;
-  font-size: 10.5px;
-  color: #64748b;
+.box-header h2 {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
-.btn-play {
-  width: 32px;
-  height: 32px;
+.btn-text {
+  background: none;
   border: none;
-  border-radius: 50%;
-  background: #1d4ed8;
-  color: #fff;
-  font-size: 12px;
+  color: var(--text-dim);
+  font-size: 11.5px;
   cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-text:hover {
+  color: var(--text-muted);
+}
+
+.btn-text:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.status-summary {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  background: var(--bg-app);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+}
+
+.status-summary strong {
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   MEDIA REFERENSI (FOTO & VIDEO)
+   ========================================================================== */
+#ref-viewer-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #000000;
+  border-radius: 6px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
-  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.35);
+  border: 1px solid var(--border-light);
 }
 
-.btn-play:hover {
-  transform: scale(1.06);
-  background: #1e40af;
-}
-
-.btn-play.on {
-  background: #c2410c;
-  box-shadow: 0 2px 6px rgba(194, 65, 12, 0.35);
-}
-
-/* Navigasi Tab Minimalis */
-.nav-tabs {
-  display: flex;
-  background: #e2e8f0;
-  border-radius: 8px;
-  padding: 2px;
-  margin-bottom: 10px;
-}
-
-.nav-tab {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 5px 0;
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.nav-tab.active {
-  background: #ffffff;
-  color: #1e293b;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
-/* Konten Tab */
-.tab-content {
-  display: none;
-}
-.tab-content.active {
+#ref-viewer-wrap img,
+#ref-viewer-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
   display: block;
 }
 
-/* Segmented Control Pemilih Alat */
-.segment-group {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 8px;
+#ref-placeholder {
+  color: var(--text-dim);
+  font-size: 12px;
 }
 
-.segment-btn {
-  flex: 1;
-  padding: 6px 4px;
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
 
-.segment-btn:hover {
-  background: #e2e8f0;
-}
 
-.segment-btn.active {
-  background: #1d4ed8;
-  color: #fff;
-  border-color: #1d4ed8;
-  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.25);
-}
-
-/* Status HUD Base */
-.base-hud {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 5px 8px;
-  margin-bottom: 8px;
-  font-size: 11px;
-}
-
-.hud-label {
-  font-weight: 700;
-  color: #475569;
-  font-size: 9.5px;
-  margin-right: 4px;
-}
-
-#baseStatusText {
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.mini-btn {
-  padding: 2px 8px;
-  font-size: 10px;
-  font-weight: 600;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  background: #fff;
-  cursor: pointer;
-  color: #334155;
-}
-.mini-btn:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
-}
-
-/* Kotak Kontrol Ringkas */
-.control-box {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+.ref-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 8px 10px;
-  margin-bottom: 8px;
-}
-
-.box-tag {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: #64748b;
-  margin-bottom: 6px;
-}
-
-.row {
-  margin: 6px 0;
-}
-
-.row label.t {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  z-index: 6;
+}
+
+.ref-caption-overlay {
   font-size: 11px;
-  font-weight: 500;
-  color: #334155;
-  margin-bottom: 2px;
+  color: #e4e4e7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px;
 }
 
-.val-badge {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #1d4ed8;
-  font-variant-numeric: tabular-nums;
+.ref-btn-row {
+  display: flex;
+  gap: 4px;
 }
 
-.row input[type=range] {
-  width: 100%;
-  accent-color: #1d4ed8;
-  margin: 0;
-  height: 4px;
+.btn-icon {
+  width: 24px;
+  height: 24px;
+  background: rgba(24, 24, 27, 0.85);
+  border: 1px solid var(--border-light);
+  border-radius: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Pohon Hierarki Monospace */
-#tree {
-  margin: 6px 0 0;
-  padding: 7px 9px;
-  border-radius: 6px;
-  background: #0f172a;
-  color: #cbd5e1;
-  font: 10.5px/1.45 ui-monospace, Menlo, Consolas, monospace;
-  white-space: pre;
+.btn-icon:hover {
+  color: #fff;
+  border-color: var(--border-base);
+}
+
+/* Thumbnail strip */
+.ref-thumbnails {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
   overflow-x: auto;
-  max-height: 220px;
+  padding-bottom: 2px;
 }
 
-#tree b {
-  color: #fbbf24;
+.ref-thumbnails::-webkit-scrollbar {
+  height: 3px;
+}
+.ref-thumbnails::-webkit-scrollbar-thumb {
+  background: var(--border-light);
 }
 
-#tree .hl {
-  color: #38bdf8;
-  font-weight: bold;
-}
-
-#readout {
-  margin-top: 6px;
-  font: 10px/1.35 ui-monospace, Menlo, Consolas, monospace;
-  color: #475569;
-  white-space: pre;
-}
-
-.hint-small {
-  margin: 8px 0 0;
-  font-size: 10.5px;
-  color: #64748b;
-  line-height: 1.35;
-}
-
-/* Daftar Checkbox Opsi */
-.toggle-list {
+.ref-thumb {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  align-items: center;
+  width: 64px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease;
+}
+
+.ref-thumb img {
+  width: 100%;
+  height: 38px;
+  object-fit: cover;
+}
+
+.ref-thumb .thumb-title {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
+}
+
+.ref-thumb .thumb-video-icon {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffffff;
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.ref-thumb.active {
+  border-color: var(--accent);
+}
+
+.ref-thumb.active .thumb-title {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   FORM CONTROLS (SLIDER & CHECKBOX)
+   ========================================================================== */
+.control-row {
+  margin-bottom: 12px;
+}
+
+.control-row:last-child {
+  margin-bottom: 0;
+}
+
+.control-row label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.control-row label .val {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--border-base);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  background: #ffffff;
+  border-radius: 50%;
+  cursor: grab;
+  border: 1px solid var(--border-base);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+input[type=range]:active::-webkit-slider-thumb {
+  background: var(--accent);
+}
+
+input[type=range]:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Checkboxes */
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 10px;
 }
 
-.check {
+.check-item {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #334155;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
   cursor: pointer;
 }
 
-.check input {
-  accent-color: #1d4ed8;
+.check-item input[type=checkbox] {
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 
+.check-item:hover span {
+  color: var(--text-main);
+}
+
+/* Kamera buttons */
+.camera-btn-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.btn-subtle {
+  padding: 6px 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.btn-subtle:hover {
+  background: var(--bg-hover);
+  color: var(--text-main);
+  border-color: var(--border-base);
+}
+
+/* Tree scene graph */
+.tree-wrap {
+  background: var(--bg-app);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#tree {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 8px 10px;
+  margin: 0;
+  white-space: pre;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+#tree .hl {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+#tree b {
+  color: var(--text-main);
+}
+
+#readout {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-dim);
+  padding: 6px 10px;
+  background: var(--bg-header);
+  border-top: 1px solid var(--border-light);
+}
+
+/* ==========================================================================
+   HUD PANDUAN KEYBOARD
+   ========================================================================== */
+#hudHelp {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(calc(-50% - (var(--panel-w) / 2)));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(23, 23, 26, 0.9);
+  border: 1px solid var(--border-base);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 30;
+}
+
+.hud-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-base);
+  border-radius: 3px;
+  color: var(--text-main);
+}
+
+kbd.active-key {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.hud-sep {
+  color: var(--border-base);
+}
+
+/* ==========================================================================
+   LIGHTBOX MODAL
+   ========================================================================== */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+#lightbox.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lb-inner {
+  position: relative;
+  max-width: min(92vw, 1100px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.lb-inner img,
+.lb-inner video {
+  max-width: 100%;
+  max-height: 82vh;
+  object-fit: contain;
+  border: 1px solid var(--border-base);
+}
+
+.lb-close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-base);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.lb-close:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.lb-caption {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.lb-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-base);
+  background: rgba(23, 23, 26, 0.85);
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.lb-nav:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+.lb-nav.prev {
+  left: -46px;
+}
+
+.lb-nav.next {
+  right: -46px;
+}
+
+/* ==========================================================================
+   ERROR OVERLAY
+   ========================================================================== */
 #error {
   position: fixed;
-  left: 16px;
-  top: 16px;
-  right: 340px;
-  padding: 10px 12px;
-  display: none;
-  background: #fee2e2;
-  color: #7f1d1d;
-  border-radius: 8px;
+  top: calc(var(--header-h) + 12px);
+  left: 12px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
   font-size: 12px;
-  z-index: 1000;
+  border-radius: 4px;
+  display: none;
+  z-index: 100;
 }
 
-@media (max-width: 640px) {
-  #panel {
-    width: calc(100% - 24px);
-    right: 12px;
-    top: 12px;
-    max-height: 55%;
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 800px) {
+  :root {
+    --panel-w: 100%;
   }
+
+  canvas#glcanvas {
+    right: 0;
+    bottom: 280px;
+    height: auto;
+  }
+
+  #panel {
+    top: auto;
+    left: 0;
+    height: 280px;
+    border-left: none;
+    border-top: 1px solid var(--border-light);
+  }
+
   #hudHelp {
     display: none;
   }

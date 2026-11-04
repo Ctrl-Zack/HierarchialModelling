@@ -70,7 +70,7 @@ async function main() {
     showScenery: true
   };
 
-  const cam = { yaw: 35, pitch: 25, dist: 22.0, target: [-3.0, 1.0, 0] };
+  const cam = { yaw: 28, pitch: 20, dist: 18.0, target: [0, 1.0, 0] };
 
   // 6. UI & Keyboard Input Setup
   const { elPullAngle, elStrideAngle, elAirWalkerAngle, processKeyboardInput, updateUI } = setupUI(state, cam, sceneData, canvas);
@@ -78,8 +78,10 @@ async function main() {
   // 7. Viewport Resize Helper
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = Math.floor(canvas.clientWidth * dpr);
-    const h = Math.floor(canvas.clientHeight * dpr);
+    const clientW = canvas.clientWidth || window.innerWidth || 800;
+    const clientH = canvas.clientHeight || window.innerHeight || 600;
+    const w = Math.max(Math.floor(clientW * dpr), 1);
+    const h = Math.max(Math.floor(clientH * dpr), 1);
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -145,6 +147,10 @@ async function main() {
     gl.enable(gl.DEPTH_TEST);
 
     // Kamera Orbit (Dibatasi di atas permukaan tanah agar tidak tembus ke bawah tanah)
+    if (isNaN(cam.yaw))   cam.yaw = 28;
+    if (isNaN(cam.pitch)) cam.pitch = 20;
+    if (isNaN(cam.dist))  cam.dist = 18.0;
+
     const yaw = cam.yaw * DEG, pitch = cam.pitch * DEG;
     const eyeY = Math.max(cam.target[1] + cam.dist * Math.sin(pitch), 0.20);
     const eye = [
@@ -153,7 +159,8 @@ async function main() {
       cam.target[2] + cam.dist * Math.cos(pitch) * Math.cos(yaw)
     ];
     const view = Mat4.lookAt(eye, cam.target, [0, 1, 0]);
-    const proj = Mat4.perspective(45 * DEG, canvas.width / canvas.height, 0.1, 150);
+    const aspect = Math.max(canvas.width / Math.max(canvas.height, 1), 0.1);
+    const proj = Mat4.perspective(45 * DEG, aspect, 0.1, 150);
 
     gl.useProgram(program);
     gl.uniformMatrix4fv(U.u_ViewMatrix, false, view);
