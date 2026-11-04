@@ -64,7 +64,7 @@ async function main() {
     alt: true,
 
     // Tampilan
-    showHighlight: true,
+    showHighlight: false,
     showAxes: false,
     showGrid: false,
     showScenery: true
@@ -219,7 +219,7 @@ async function main() {
 
     // Mesin 2: Elliptical Trainer (Four-Bar Linkage)
     solveEllipticalSide(elliptical.sides[0], state.ellipticalStride);
-    solveEllipticalSide(elliptical.sides[1], state.alt ? -state.ellipticalStride : state.ellipticalStride);
+    solveEllipticalSide(elliptical.sides[1], -state.ellipticalStride);
 
     // Mesin 3: Air Walker (Pendulum Leg Swing)
     solveAirWalkerSide(airWalker.sides[0], state.airWalkerSwing);
