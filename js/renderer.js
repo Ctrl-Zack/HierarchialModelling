@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * WebGL2 Rendering & Matrix Stack Hierarchy Traversal
- */
-
 function drawMesh(gl, U, mesh, model, mat, unlit = 0) {
   gl.uniformMatrix4fv(U.u_ModelMatrix, false, model);
   gl.uniformMatrix3fv(U.u_NormalMatrix, false, Mat4.normalMatrix(model));
@@ -36,12 +32,11 @@ function drawNode(gl, U, node, parentWorld) {
   }
 }
 
-// Sumbu koordinat lokal pivot yang proporsional dan tidak menusuk pandangan
 function drawAxes(gl, U, meshes, frame, L = 0.22) {
   const axes = [
-    { to: [L, 0, 0], col: [1.0, 0.22, 0.22] }, // X = merah
-    { to: [0, L, 0], col: [0.20, 0.85, 0.22] }, // Y = hijau
-    { to: [0, 0, L], col: [0.25, 0.45, 1.00] }  // Z = biru
+    { to: [L, 0, 0], col: [1.0, 0.22, 0.22] },
+    { to: [0, L, 0], col: [0.20, 0.85, 0.22] },
+    { to: [0, 0, L], col: [0.25, 0.45, 1.00] }
   ];
 
   gl.disable(gl.DEPTH_TEST);
@@ -53,7 +48,6 @@ function drawAxes(gl, U, meshes, frame, L = 0.22) {
   gl.enable(gl.DEPTH_TEST);
 }
 
-// Cincin seleksi kotak base di atas lantai (RTS-style placement box)
 function drawSelectionBox(gl, U, meshes, baseWorld, halfW = 1.8, halfD = 1.0) {
   const y = 0.045;
   const c = [0.10, 1.00, 0.32];

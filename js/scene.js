@@ -1,39 +1,36 @@
 'use strict';
 const MAT = {
-  // Mesin Outdoor Fitness:
-  blue:          { color: [0.10, 0.24, 0.80], shine: 80,  spec: 0.65 },   // rangka tiang biru
-  silver:        { color: [0.84, 0.86, 0.90], shine: 120, spec: 1.00 },   // pipa silver stang gawang siku
-  black:         { color: [0.06, 0.06, 0.07], shine: 24,  spec: 0.35 },   // grip karet hitam
-  pedalPlate:    { color: [0.36, 0.38, 0.44], shine: 28,  spec: 0.28 },   // pelat pijakan kaki abu-abu
-  rod:           { color: [0.82, 0.84, 0.88], shine: 80,  spec: 0.70 },   // link rod perak
-  grass:         { color: [0.30, 0.50, 0.20], shine: 4,   spec: 0.02 },   // rumput hijau
-  concrete:      { color: [0.65, 0.65, 0.63], shine: 10,  spec: 0.08 },   // alas beton abu-abu
+  blue:          { color: [0.10, 0.24, 0.80], shine: 80,  spec: 0.65 }, 
+  silver:        { color: [0.84, 0.86, 0.90], shine: 120, spec: 1.00 }, 
+  black:         { color: [0.06, 0.06, 0.07], shine: 24,  spec: 0.35 }, 
+  pedalPlate:    { color: [0.36, 0.38, 0.44], shine: 28,  spec: 0.28 }, 
+  rod:           { color: [0.82, 0.84, 0.88], shine: 80,  spec: 0.70 }, 
+  grass:         { color: [0.30, 0.50, 0.20], shine: 4,   spec: 0.02 }, 
+  concrete:      { color: [0.65, 0.65, 0.63], shine: 10,  spec: 0.08 }, 
 
-  // Material Urban Green Park:
-  pavingTrack:   { color: [0.76, 0.73, 0.66], shine: 14,  spec: 0.10 },   // paving track melingkar
-  pavingBorder:  { color: [0.55, 0.53, 0.48], shine: 10,  spec: 0.06 },   // tepi batu paving
-  woodBench:     { color: [0.58, 0.34, 0.16], shine: 18,  spec: 0.15 },   // kayu bangku taman (warm teak)
-  treeTrunk:     { color: [0.34, 0.22, 0.12], shine: 8,   spec: 0.04 },   // batang kayu pohon gelap
-  treeCrownDark: { color: [0.15, 0.36, 0.12], shine: 6,   spec: 0.04 },   // tajuk daun hijau rimbun tua
-  treeCrownLight:{ color: [0.28, 0.52, 0.18], shine: 6,   spec: 0.04 },   // tajuk daun hijau segar terang
-  bush:          { color: [0.20, 0.44, 0.15], shine: 6,   spec: 0.04 },   // semak-semak taman
-  lampMetal:     { color: [0.12, 0.14, 0.16], shine: 55,  spec: 0.55 },   // besi hitam tiang lampu & kaki bangku
-  lampGlow:      { color: [1.00, 0.94, 0.60], shine: 1,   spec: 0.00 },   // kaca/bohlam lentera lampu menyala
-  signPlaque:    { color: [0.88, 0.82, 0.72], shine: 10,  spec: 0.06 },   // pelat papan informasi
-  signGreen:     { color: [0.12, 0.42, 0.22], shine: 30,  spec: 0.25 },   // aksen hijau papan
-  trashCanBody:  { color: [0.16, 0.38, 0.25], shine: 35,  spec: 0.30 },   // tempat sampah taman hijau
+  pavingTrack:   { color: [0.76, 0.73, 0.66], shine: 14,  spec: 0.10 }, 
+  pavingBorder:  { color: [0.55, 0.53, 0.48], shine: 10,  spec: 0.06 }, 
+  woodBench:     { color: [0.58, 0.34, 0.16], shine: 18,  spec: 0.15 }, 
+  treeTrunk:     { color: [0.34, 0.22, 0.12], shine: 8,   spec: 0.04 }, 
+  treeCrownDark: { color: [0.15, 0.36, 0.12], shine: 6,   spec: 0.04 }, 
+  treeCrownLight:{ color: [0.28, 0.52, 0.18], shine: 6,   spec: 0.04 }, 
+  bush:          { color: [0.20, 0.44, 0.15], shine: 6,   spec: 0.04 }, 
+  lampMetal:     { color: [0.12, 0.14, 0.16], shine: 55,  spec: 0.55 }, 
+  lampGlow:      { color: [1.00, 0.94, 0.60], shine: 1,   spec: 0.00 }, 
+  signPlaque:    { color: [0.88, 0.82, 0.72], shine: 10,  spec: 0.06 }, 
+  signGreen:     { color: [0.12, 0.42, 0.22], shine: 30,  spec: 0.25 }, 
+  trashCanBody:  { color: [0.16, 0.38, 0.25], shine: 35,  spec: 0.30 }, 
 
-  // Material Danau (Lakeside Scenery):
-  waterDeep:     { color: [0.02, 0.14, 0.30], shine: 180, spec: 1.20, isWater: 1 },   // air danau dalam biru pekat gelap (water shader aktif)
-  waterShallow:  { color: [0.05, 0.22, 0.38], shine: 130, spec: 0.95, isWater: 1 },   // air tepian danau jernih teduh gelap (water shader aktif)
-  lakeSand:      { color: [0.78, 0.72, 0.58], shine: 8,   spec: 0.04 },   // pasir pantai tepi danau
-  lakeRock:      { color: [0.46, 0.45, 0.43], shine: 18,  spec: 0.12 },   // batu kali alami abu-abu
-  lakeRockDark:  { color: [0.34, 0.33, 0.32], shine: 16,  spec: 0.10 },   // batu kali gelap basah
-  lilyPad:       { color: [0.14, 0.52, 0.20], shine: 20,  spec: 0.15 },   // daun teratai hijau mengapung
-  lotusPetal:    { color: [0.96, 0.58, 0.76], shine: 25,  spec: 0.25 },   // kelopak bunga teratai merah muda
-  lotusCenter:   { color: [0.98, 0.88, 0.15], shine: 35,  spec: 0.40 },   // putik bunga teratai kuning
-  reedStem:      { color: [0.32, 0.46, 0.16], shine: 10,  spec: 0.04 },   // batang buluh/gelagah air
-  cattailHead:   { color: [0.34, 0.20, 0.10], shine: 8,   spec: 0.02 },   // bulir bunga gelagah cokelat
+  waterDeep:     { color: [0.02, 0.14, 0.30], shine: 180, spec: 1.20, isWater: 1 }, 
+  waterShallow:  { color: [0.05, 0.22, 0.38], shine: 130, spec: 0.95, isWater: 1 }, 
+  lakeSand:      { color: [0.78, 0.72, 0.58], shine: 8,   spec: 0.04 }, 
+  lakeRock:      { color: [0.46, 0.45, 0.43], shine: 18,  spec: 0.12 }, 
+  lakeRockDark:  { color: [0.34, 0.33, 0.32], shine: 16,  spec: 0.10 }, 
+  lilyPad:       { color: [0.14, 0.52, 0.20], shine: 20,  spec: 0.15 }, 
+  lotusPetal:    { color: [0.96, 0.58, 0.76], shine: 25,  spec: 0.25 }, 
+  lotusCenter:   { color: [0.98, 0.88, 0.15], shine: 35,  spec: 0.40 }, 
+  reedStem:      { color: [0.32, 0.46, 0.16], shine: 10,  spec: 0.04 }, 
+  cattailHead:   { color: [0.34, 0.20, 0.10], shine: 8,   spec: 0.02 }, 
 };
 
 function pipeMatrix(p1, p2, r) {
@@ -98,12 +95,6 @@ class Node {
     return this;
   }
 
-  /**
-   * addPrism — Prisma segitiga siku-siku.
-   * size = [legX, legY, depth]
-   * pos = posisi sudut siku-siku (default: origin='corner') atau centroid (origin='centroid')
-   * rotDeg = [rx, ry, rz] rotasi dalam derajat
-   */
   addPrism(size, pos, mat, rotDeg = [0, 0, 0], origin = 'corner') {
     let m = Mat4.translation(pos[0], pos[1], pos[2]);
     m = Mat4.rotateY(m, rotDeg[1] * DEG);
@@ -142,38 +133,32 @@ function createNode(name, meshes) {
 }
 
 
-// Offset translasi environment di sumbu X agar FitnessPad tepat berada di tengah origin (0, 0, 0)
 const ENV_OFFSET_X = -12.5;
 
 const DEFAULT_BASES = {
-  latPull:    { pos: [-3.2, 0, 0], rotY: 90 }, // Sisi Kiri (X = -3.2)
-  elliptical: { pos: [ 0.0, 0, 0], rotY: 0 }, // Tengah Origin (X = 0.0)
-  airWalker:  { pos: [ 3.2, 0, 0], rotY: 0 }  // Sisi Kanan (X = +3.2)
+  latPull:    { pos: [-3.2, 0, 0], rotY: 90 },
+  elliptical: { pos: [ 0.0, 0, 0], rotY: 0 },
+  airWalker:  { pos: [ 3.2, 0, 0], rotY: 0 }
 };
 
 function buildSceneHierarchy(meshes) {
   const root = createNode('Root', meshes);
 
-  // 1. Mesin Lat Pull Down
   const latPullBase = root.add(createNode('LatPullBaseNode', meshes));
   latPullBase.translation = [...DEFAULT_BASES.latPull.pos];
   latPullBase.rotation = [0, DEFAULT_BASES.latPull.rotY, 0];
   const latPull = buildLatPullMachine(latPullBase, meshes);
 
-  // 2. Mesin Outdoor Elliptical
   const ellipticalBase = root.add(createNode('EllipticalBaseNode', meshes));
   ellipticalBase.translation = [...DEFAULT_BASES.elliptical.pos];
   ellipticalBase.rotation = [0, DEFAULT_BASES.elliptical.rotY, 0];
   const elliptical = buildEllipticalMachine(ellipticalBase, meshes);
 
-  // 3. Mesin Outdoor Air Walker
   const airWalkerBase = root.add(createNode('AirWalkerBaseNode', meshes));
   airWalkerBase.translation = [...DEFAULT_BASES.airWalker.pos];
   airWalkerBase.rotation = [0, DEFAULT_BASES.airWalker.rotY, 0];
   const airWalker = buildAirWalkerMachine(airWalkerBase, meshes);
 
-  // 4. Urban Green Park Scenery (Lantai Karet, Paving Track, Pohon, Bangku, Lampu)
-  // Seluruh hierarki scenery digeser di sumbu X agar FitnessPad berada di tengah origin
   const environmentNode = root.add(createNode('UrbanParkEnvironmentNode', meshes));
   environmentNode.translation = [ENV_OFFSET_X, 0, 0];
   buildUrbanParkEnvironment(environmentNode, meshes);

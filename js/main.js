@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * Application Entry Point & Main Render Loop for 3 Outdoor Fitness Machines + Urban Park Scenery
- */
-
 async function main() {
   const canvas = document.getElementById('glcanvas');
   const gl = canvas.getContext('webgl2', { antialias: true, alpha: true });
@@ -17,7 +13,6 @@ async function main() {
     throw new Error('WebGL2 not supported');
   }
 
-  // 1. Shaders & Program (Dimuat langsung dari file .glsl)
   let shaderInit;
   try {
     shaderInit = await initShaders(gl);
@@ -27,43 +22,35 @@ async function main() {
   }
   const { program, U } = shaderInit;
 
-  // 2. Procedural Meshes
   const meshes = initMeshes(gl);
 
-  // 3. Scene Graph & Hierarchy (3 Mesin Bersebelahan + Urban Park Scenery di Bawah Root)
   const sceneData = buildSceneHierarchy(meshes);
   const { root, latPull, elliptical, airWalker, environmentNode } = sceneData;
 
-  // 4. Inisialisasi Kinematika Awal
   latPull.sides.forEach(S => initSide(S, latPull.mainFrame));
   elliptical.sides.forEach(S => initEllipticalSide(S));
 
-  // 5. State Aplikasi (Default: belum ada alat yang dipilih)
   const state = {
-    selectedMachine: null, // null | 'latPull' | 'elliptical' | 'airWalker'
+    selectedMachine: null,
 
-    // Mesin 1: Lat Pull Down
     latPullPos: [...DEFAULT_BASES.latPull.pos],
     latPullRotY: DEFAULT_BASES.latPull.rotY,
     latPullAngle: 0,
 
-    // Mesin 2: Elliptical Trainer
     ellipticalPos: [...DEFAULT_BASES.elliptical.pos],
     ellipticalRotY: DEFAULT_BASES.elliptical.rotY,
     ellipticalStride: 0,
 
-    // Mesin 3: Outdoor Air Walker (Pendulum Leg Swing)
     airWalkerPos: [...DEFAULT_BASES.airWalker.pos],
     airWalkerRotY: DEFAULT_BASES.airWalker.rotY,
     airWalkerSwing: 0,
 
-    // Animasi Global
+    // Global Animation
     auto: false,
     phase: -Math.PI / 2,
     speed: 2,
     alt: true,
 
-    // Tampilan
     showAxes: false,
     showGrid: false,
     showScenery: true
@@ -71,18 +58,12 @@ async function main() {
 
   const cam = { yaw: 35, pitch: 25, dist: 22.0, target: [-3.0, 1.0, 0] };
 
-  // 6. UI & Keyboard Input Setup
   const { elPullAngle, elStrideAngle, elAirWalkerAngle, processKeyboardInput, updateUI } = setupUI(state, cam, sceneData, canvas);
 
-  // 6b. Kontrol Kamera & Animasi via Keyboard
-  //   K            : start / stop animasi
-  //   Arrow Keys   : jalan (atas/bawah = maju/mundur, kiri/kanan = geser)
-  //   Spasi        : kamera naik
-  //   Ctrl         : kamera turun (tinggi mata minimum 1.5 m)
   const MIN_EYE_HEIGHT = 1.5;
-  const WALK_SPEED = 8;        // meter / detik (arrow)
-  const CAM_MOVE_SPEED = 6;    // meter / detik (spasi / ctrl)
-  const ROTATE_SPEED = 70;     // derajat / detik (Shift + arrow)
+  const WALK_SPEED = 8;        // meter / second (arrow)
+  const CAM_MOVE_SPEED = 6;    // meter / second (spasi / ctrl)
+  const ROTATE_SPEED = 70;     // derajat / second (Shift + arrow)
   const camKeys = { left: false, right: false, up: false, down: false, rise: false, sink: false, shift: false };
 
   function isTextField(el) {
@@ -92,7 +73,7 @@ async function main() {
 
   function setCamKey(e, pressed) {
     if (isTextField(e.target)) return;
-    camKeys.shift = e.shiftKey; // Shift + Arrow = rotasi kamera
+    camKeys.shift = e.shiftKey;
     let handled = true;
     switch (e.code) {
       case 'ArrowLeft':    camKeys.left  = pressed; break;
@@ -103,13 +84,13 @@ async function main() {
       case 'ControlLeft':
       case 'ControlRight': camKeys.sink  = pressed; break;
       case 'KeyK':
-        if (pressed && !e.repeat) state.auto = !state.auto; // toggle start/stop
+        if (pressed && !e.repeat) state.auto = !state.auto;
         break;
       default: handled = false;
     }
     if (handled) {
       e.preventDefault();
-      e.stopImmediatePropagation(); // hindari bentrok dengan handler lama di setupUI
+      e.stopImmediatePropagation();
     }
   }
 
@@ -118,9 +99,6 @@ async function main() {
   window.addEventListener('blur', () => { for (const k in camKeys) camKeys[k] = false; });
 
   function updateCameraControls(dt) {
-    // Shift + Arrow = rotasi kamera (kiri/kanan = menoleh, atas/bawah = mendongak/menunduk)
-    // Sumbu putar = posisi kamera sendiri (first-person): posisi mata dipertahankan,
-    // yang digeser adalah titik target di depan kamera.
     if (camKeys.shift && (camKeys.left || camKeys.right || camKeys.up || camKeys.down)) {
       const p0 = cam.pitch * DEG, y0 = cam.yaw * DEG;
       const ex = cam.target[0] + cam.dist * Math.cos(p0) * Math.sin(y0);
@@ -139,10 +117,9 @@ async function main() {
       cam.target[2] = ez - cam.dist * Math.cos(p1) * Math.cos(y1);
     }
 
-    // Arrow (tanpa Shift) = berjalan di bidang horizontal relatif arah pandang kamera
     const yawRad = cam.yaw * DEG;
-    const fwdX = -Math.sin(yawRad), fwdZ = -Math.cos(yawRad); // arah pandang
-    const rgtX =  Math.cos(yawRad), rgtZ = -Math.sin(yawRad); // kanan kamera
+    const fwdX = -Math.sin(yawRad), fwdZ = -Math.cos(yawRad);
+    const rgtX =  Math.cos(yawRad), rgtZ = -Math.sin(yawRad);
     const moveF = camKeys.shift ? 0 : (camKeys.up ? 1 : 0) - (camKeys.down ? 1 : 0);
     const moveR = camKeys.shift ? 0 : (camKeys.right ? 1 : 0) - (camKeys.left ? 1 : 0);
     if (moveF || moveR) {
@@ -155,12 +132,11 @@ async function main() {
     if (camKeys.rise) cam.target[1] += CAM_MOVE_SPEED * dt;
     if (camKeys.sink) cam.target[1] -= CAM_MOVE_SPEED * dt;
 
-    // Tinggi mata kamera tidak boleh di bawah 1.5 m
     const minTargetY = MIN_EYE_HEIGHT - cam.dist * Math.sin(cam.pitch * DEG);
     if (cam.target[1] < minTargetY) cam.target[1] = minTargetY;
   }
 
-  // 7. Viewport Resize Helper
+  // Viewport Resize Helper
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = Math.floor(canvas.clientWidth * dpr);
@@ -172,7 +148,7 @@ async function main() {
     gl.viewport(0, 0, canvas.width, canvas.height);
   }
 
-  // 8. Main Render Loop
+  // Main Render Loop
   let lastTime = performance.now();
 
   function frame(now) {
@@ -180,28 +156,22 @@ async function main() {
     const dt = Math.min(Math.max((now - lastTime) / 1000, 0.0), 0.05) || 0.016;
     lastTime = now;
 
-    // ---- Pemrosesan Input Keyboard WASD Real-Time ----
     processKeyboardInput(dt);
     updateCameraControls(dt);
 
-    // ---- Animasi otomatis ----
     if (state.auto) {
       state.phase += dt * state.speed;
 
-      // 1. Lat Pull Down: 0 s/d 45 derajat
       state.latPullAngle = 22.5 + 22.5 * Math.sin(state.phase);
       elPullAngle.value = state.latPullAngle;
 
-      // 2. Elliptical: -12 s/d +12 derajat (dicap agar tidak melebihi zona stabil linkage)
       state.ellipticalStride = 12 * Math.sin(state.phase);
       elStrideAngle.value = state.ellipticalStride;
 
-      // 3. Air Walker: -22 s/d +22 derajat
       state.airWalkerSwing = 22 * Math.sin(state.phase);
       elAirWalkerAngle.value = state.airWalkerSwing;
     }
 
-    // ---- 1. Terapkan Transformasi Base ke Parent Nodes (Hierarchical Matrix Stack) ----
     latPull.baseNode.translation = [state.latPullPos[0], state.latPullPos[1], state.latPullPos[2]];
     latPull.baseNode.rotation = [0, state.latPullRotY, 0];
 
@@ -211,26 +181,20 @@ async function main() {
     airWalker.baseNode.translation = [state.airWalkerPos[0], state.airWalkerPos[1], state.airWalkerPos[2]];
     airWalker.baseNode.rotation = [0, state.airWalkerRotY, 0];
 
-    // ---- 2. Selesaikan Kinematika Ketiga Mesin ----
-    // Mesin 1: Lat Pull Down
     solveSide(latPull.sides[0], state.latPullAngle, latPull.mainFrame);
     solveSide(latPull.sides[1], state.alt ? 45 - state.latPullAngle : state.latPullAngle, latPull.mainFrame);
 
-    // Mesin 2: Elliptical Trainer (Four-Bar Linkage)
     solveEllipticalSide(elliptical.sides[0], state.ellipticalStride);
     solveEllipticalSide(elliptical.sides[1], -state.ellipticalStride);
 
-    // Mesin 3: Air Walker (Pendulum Leg Swing)
     solveAirWalkerSide(airWalker.sides[0], state.airWalkerSwing);
     solveAirWalkerSide(airWalker.sides[1], state.alt ? -state.airWalkerSwing : state.airWalkerSwing);
 
-    // ---- 3. Render Pipeline ----
     resize();
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
 
-    // Kamera Orbit (Dibatasi di atas permukaan tanah agar tidak tembus ke bawah tanah)
     const yaw = cam.yaw * DEG, pitch = cam.pitch * DEG;
     const eyeY = Math.max(cam.target[1] + cam.dist * Math.sin(pitch), MIN_EYE_HEIGHT);
     const eye = [
@@ -245,25 +209,23 @@ async function main() {
     gl.uniformMatrix4fv(U.u_ViewMatrix, false, view);
     gl.uniformMatrix4fv(U.u_ProjectionMatrix, false, proj);
     gl.uniform3fv(U.u_CameraPos, eye);
-    gl.uniform3fv(U.u_LightDir, [0.45, 0.85, 0.55]); // Sinar matahari keemasan dari atas-kanan
-    gl.uniform3fv(U.u_FogColor, [0.80, 0.88, 0.94]); // Kabut atmosferik horizon langit
-    gl.uniform1f(U.u_Time, (now || performance.now()) * 0.001); // Waktu untuk riak air & caustics
+    gl.uniform3fv(U.u_LightDir, [0.45, 0.85, 0.55]);
+    gl.uniform3fv(U.u_FogColor, [0.80, 0.88, 0.94]);
+    gl.uniform1f(U.u_Time, (now || performance.now()) * 0.001);
 
-    // Lantai Rumput Hijau (World Ground)
+    // World Ground
     drawMesh(gl, U, meshes.box, Mat4.multiply(Mat4.translation(0, -0.02, 0), Mat4.scaling(160, 0.04, 160)), MAT.grass);
     if (state.showGrid) {
       drawMesh(gl, U, meshes.grid, Mat4.translation(0, 0.006, 0), { color: [0.24, 0.40, 0.17] }, 1);
     }
 
-    // Toggle visibilitas scenery taman
+    // == Options ==
     if (environmentNode) {
       environmentNode.visible = state.showScenery;
     }
 
-    // Traversal Seluruh Pohon Hierarki Mulai dari Root (Matrix Stack)
     drawNode(gl, U, root, Mat4.identity());
 
-    // Baseline hijau menandai alas mesin yang sedang dipilih.
     if (state.selectedMachine) {
       if (state.selectedMachine === 'latPull') {
         drawSelectionBox(gl, U, meshes, latPull.baseNode.world, 1.95, 0.95);
@@ -274,7 +236,6 @@ async function main() {
       }
     }
 
-    // Visualisasi Sumbu Lokal Pivot
     if (state.showAxes) {
       latPull.sides.forEach(S => drawAxes(gl, U, meshes, S.pivot.world, 0.22));
       elliptical.sides.forEach(S => drawAxes(gl, U, meshes, S.frontPivot.world, 0.22));

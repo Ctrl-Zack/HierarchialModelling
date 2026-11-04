@@ -1,50 +1,29 @@
 'use strict';
 
 function buildUrbanParkEnvironment(envNode, meshes) {
-  // 1. Danau Bentuk 8 Menyatu Tanpa Jarak (Seamless Figure-8 Lake)
   buildFigure8Lake(envNode, meshes);
-
-  // 2. Jogging Track Mengitari Danau Bentuk 8 (Continuous Closed-Loop Track)
   buildFigure8JoggingTrack(envNode, meshes);
-
-  // 3. Zona Landasan Karet Merah Bata (EPDM Rubber Mat) di Area Gym
   buildFitnessPad(envNode, meshes);
-
-  // 5. Pohon Peneduh di Sekitar Jogging Track
   buildShadeTrees(envNode, meshes);
-
-  // 6. Bangku Taman Menghadap Danau di Sekitar Jogging Track
   buildParkBenches(envNode, meshes);
-
-  // 7. Lampu Tiang Taman di Sepanjang Track
   buildStreetlamps(envNode, meshes);
-
-  // 8. Semak-semak & Lanskap Asri
   buildParkBushes(envNode, meshes);
-
-  // 9. Fasilitas Tambahan: Papan Informasi (Plang) & Tempat Sampah
   buildParkAmenities(envNode, meshes);
-
-  // 10. Ekosistem Danau: Air Mancur, Teratai, Gelagah Rawa
   buildLakeEcosystem(envNode, meshes);
 
   return envNode;
 }
 
 const LAKE8 = {
-  // Lingkaran Utara (Top Lobe)
   topCx: 0, topCz: -3.5,
   topRx: 5.2, topRz: 4.2,
 
-  // Lingkaran Selatan (Bottom Lobe)
   botCx: 0, botCz: 3.5,
   botRx: 5.2, botRz: 4.2,
 
-  // Penghubung Pinggang Tengah (Center Waist) - menyatukan kedua danau
   midCx: 0, midCz: 0,
   midRx: 4.0, midRz: 2.6,
 
-  // Lapisan tepian
   sandExtra: 0.85,
   shallowExtra: 0.35,
 };
@@ -91,7 +70,7 @@ function buildFigure8Lake(parent, meshes) {
   });
 
   const rockConfigs = [
-    // Lingkaran Utara (Lobe Utara)
+
     { pos: [-4.8, 0.10, -5.8], s: [0.52, 0.26, 0.46], rot:  25, dark: true },
     { pos: [-3.2, 0.08, -7.2], s: [0.44, 0.22, 0.40], rot: -15, dark: false },
     { pos: [ 0.0, 0.12, -7.6], s: [0.58, 0.28, 0.52], rot:  40, dark: true },
@@ -100,13 +79,13 @@ function buildFigure8Lake(parent, meshes) {
     { pos: [-5.4, 0.09, -3.5], s: [0.46, 0.24, 0.42], rot: -20, dark: false },
     { pos: [ 5.4, 0.09, -3.5], s: [0.46, 0.24, 0.42], rot:  20, dark: false },
 
-    // Pinggang Tengah (Waist Pertemuan Dua Lingkaran)
+
     { pos: [-4.2, 0.11, -1.2], s: [0.48, 0.24, 0.44], rot:  15, dark: true },
     { pos: [-4.2, 0.11,  1.2], s: [0.48, 0.24, 0.44], rot: -15, dark: true },
     { pos: [ 4.2, 0.11, -1.2], s: [0.46, 0.24, 0.42], rot: -25, dark: false },
     { pos: [ 4.2, 0.11,  1.2], s: [0.46, 0.24, 0.42], rot:  25, dark: false },
 
-    // Lingkaran Selatan (Lobe Selatan)
+
     { pos: [-5.4, 0.09,  3.5], s: [0.46, 0.24, 0.42], rot:  20, dark: false },
     { pos: [ 5.4, 0.09,  3.5], s: [0.46, 0.24, 0.42], rot: -20, dark: false },
     { pos: [-4.8, 0.10,  5.8], s: [0.52, 0.26, 0.46], rot: -25, dark: true },
@@ -115,7 +94,7 @@ function buildFigure8Lake(parent, meshes) {
     { pos: [ 3.2, 0.08,  7.2], s: [0.42, 0.22, 0.38], rot:  30, dark: false },
     { pos: [ 4.8, 0.10,  5.8], s: [0.50, 0.25, 0.45], rot: -55, dark: true },
 
-    // Batu-batu dangkal terendam air di sekitar pinggang tengah
+
     { pos: [-2.6, 0.04,  0.0], s: [0.30, 0.14, 0.26], rot:  35, dark: true },
     { pos: [ 2.6, 0.04,  0.0], s: [0.28, 0.13, 0.25], rot: -45, dark: true },
     { pos: [ 0.0, 0.03, -1.8], s: [0.24, 0.11, 0.22], rot:  10, dark: true },
@@ -135,15 +114,11 @@ function buildFigure8JoggingTrack(parent, meshes) {
 
   const trackWidth = 1.45;
 
-  // Parameter elips track:
-  // Jari-jari disesuaikan dengan danau + jarak pasir + jalan setapak
-  const Rx = 7.7;  // Lebar ke samping pada tiap lingkaran
-  const Rz = 6.4;  // Kedalaman depan-belakang pada tiap lingkaran
-  const Cz = 3.5;  // Jarak pusat lingkaran utara (-Cz) dan selatan (+Cz)
+  const Rx = 7.7;
+  const Rz = 6.4;
+  const Cz = 3.5;
 
-  // Sudut perpotongan kedua elips pada sumbu z = 0:
-  // z = Cz - Rz * sin(phi) = 0 => sin(phi) = Cz / Rz
-  const phi0 = Math.asin(Math.min(0.99, Cz / Rz)); // ~33 derajat
+  const phi0 = Math.asin(Math.min(0.99, Cz / Rz))
 
   const rawPoints = [];
   const segPerLobe = 36;
@@ -158,7 +133,6 @@ function buildFigure8JoggingTrack(parent, meshes) {
   }
   const psiStartBot = Math.PI + phi0;
   const psiEndBot = -phi0;
-  // Mulai dari i = 1 untuk menghindari duplikasi titik temu di pinggang barat
   for (let i = 1; i < segPerLobe; i++) {
     const psi = psiStartBot + (i / segPerLobe) * (psiEndBot - psiStartBot);
     const x = Rx * Math.cos(psi);
@@ -185,27 +159,27 @@ function buildFigure8JoggingTrack(parent, meshes) {
 
   for (let i = 0; i < numPts; i++) {
     const p1 = pts[i];
-    const p2 = pts[(i + 1) % numPts]; // Menyambung titik terakhir kembali ke titik pertama!
+    const p2 = pts[(i + 1) % numPts]
 
     const mx = (p1.x + p2.x) / 2;
     const mz = (p1.z + p2.z) / 2;
     const dx = p2.x - p1.x;
     const dz = p2.z - p1.z;
-    const segLen = Math.hypot(dx, dz) * 1.06; // Sedikit tumpang tindih agar tidak ada celah
+    const segLen = Math.hypot(dx, dz) * 1.06
     const rotYDeg = (-Math.atan2(dz, dx) * 180) / Math.PI;
 
-    // Segmen paving utama
+
     track.addBox([segLen, 0.020, trackWidth], [mx, 0.011, mz], MAT.pavingTrack, [0, rotYDeg, 0]);
 
-    // Kerb batu pembatas sisi luar dan sisi dalam
+
     const perpX = -dz / Math.hypot(dx, dz);
     const perpZ = dx / Math.hypot(dx, dz);
     const halfW = trackWidth / 2;
 
-    // Pembatas luar
+
     track.addBox([segLen, 0.026, 0.07],
       [mx + perpX * halfW, 0.014, mz + perpZ * halfW], MAT.pavingBorder, [0, rotYDeg, 0]);
-    // Pembatas dalam
+
     track.addBox([segLen, 0.026, 0.07],
       [mx - perpX * halfW, 0.014, mz - perpZ * halfW], MAT.pavingBorder, [0, rotYDeg, 0]);
   }
@@ -215,13 +189,10 @@ function buildFitnessPad(parent, meshes) {
   const pad = parent.add(createNode('FitnessPad', meshes));
   pad.translation = [11.5, 0, 0];
 
-  // Tepi pembatas gelap
   pad.addBox([8.70, 0.016, 5.10], [1, 0.008, 0], MAT.pavingBorder);
 
-  // Matras utama bata
   pad.addBox([8.40, 0.024, 4.80], [1, 0.012, 0], MAT.pavingTrack);
 
-  // Garis pembatas zona antar mesin (bay dividers)
   pad.addBox([0.08, 0.002, 4.70], [-0.80, 0.025, 0], MAT.pavingBorder);
   pad.addBox([0.08, 0.002, 4.70], [ 2.80, 0.025, 0], MAT.pavingBorder);
 }
@@ -229,24 +200,23 @@ function buildFitnessPad(parent, meshes) {
 function buildShadeTrees(parent, meshes) {
   const treesGroup = parent.add(createNode('ShadeTreesGroup', meshes));
 
-  // Posisi pohon mengitari sisi luar jogging track
   const treeConfigs = [
-    // Lingkaran Utara
+
     { pos: [-5.8, 0, -10.2], s: 1.25, rot:  20 },
     { pos: [ 0.0, 0, -11.6], s: 1.30, rot:  45 },
     { pos: [ 5.8, 0, -10.2], s: 1.20, rot: -30 },
 
-    // Sisi Kiri (Barat)
+
     { pos: [-9.8, 0, -4.2],  s: 1.15, rot:  60 },
     { pos: [-9.2, 0,  0.0],  s: 1.28, rot:  10 },
     { pos: [-9.8, 0,  4.2],  s: 1.18, rot: -40 },
 
-    // Lingkaran Selatan
+
     { pos: [-5.8, 0,  10.2], s: 1.22, rot:  80 },
     { pos: [ 0.0, 0,  11.6], s: 1.30, rot: -50 },
     { pos: [ 5.8, 0,  10.2], s: 1.20, rot:  35 },
 
-    // Area Sisi Timur (di sekitar fasilitas Gym)
+
     { pos: [17.4, 0, -4.2],  s: 1.15, rot: -25 },
     { pos: [17.4, 0,  4.2],  s: 1.18, rot:  55 },
     { pos: [11.5, 0, -6.6],  s: 1.10, rot: -70 },
@@ -260,13 +230,13 @@ function buildShadeTrees(parent, meshes) {
 
     const s = cfg.s;
 
-    // Batang pohon bertingkat
+
     treeNode.addPipe([0, 0, 0], [0, 0.45 * s, 0], 0.22 * s, MAT.treeTrunk);
     treeNode.addPipe([0, 0.35 * s, 0], [0, 2.30 * s, 0], 0.14 * s, MAT.treeTrunk);
     treeNode.addPipe([0, 1.65 * s, 0], [0.45 * s, 2.45 * s, 0.35 * s], 0.075 * s, MAT.treeTrunk);
     treeNode.addPipe([0, 1.85 * s, 0], [-0.40 * s, 2.55 * s, -0.30 * s], 0.070 * s, MAT.treeTrunk);
 
-    // Tajuk Daun Rimbun Bertumpuk (6 bola multi-shade)
+
     treeNode.addSphere([0, 2.75 * s, 0], [1.15 * s, 1.05 * s, 1.15 * s], MAT.treeCrownDark);
     treeNode.addSphere([0, 3.55 * s, 0], [0.85 * s, 0.85 * s, 0.85 * s], MAT.treeCrownLight);
     treeNode.addSphere([-0.65 * s, 2.75 * s, 0.25 * s], [0.82 * s, 0.78 * s, 0.82 * s], MAT.treeCrownDark);
@@ -280,17 +250,17 @@ function buildParkBenches(parent, meshes) {
   const benchesGroup = parent.add(createNode('ParkBenchesGroup', meshes));
 
   const benchConfigs = [
-    // Sisi Utara-Barat (menghadap ke pusat danau utara)
+
     { pos: [-6.4, 0, -7.5], rotY:   40 },
-    // Sisi Utara-Timur
+
     { pos: [ 6.4, 0, -7.5], rotY:  -40 },
-    // Sisi Pinggang Barat (menghadap ke tengah danau)
+
     { pos: [-8.2, 0,  0.0], rotY:   90 },
-    // Sisi Selatan-Barat (menghadap ke pusat danau selatan)
+
     { pos: [-6.4, 0,  7.5], rotY:  140 },
-    // Sisi Selatan-Timur
+
     { pos: [ 6.4, 0,  7.5], rotY: -140 },
-    // Sisi Dekat Area Gym
+
     { pos: [11.5, 0,  3.2], rotY:  180 },
   ];
 
@@ -302,7 +272,7 @@ function buildParkBenches(parent, meshes) {
     const benchWidth = 1.36;
     const legX = benchWidth / 2 - 0.06;
 
-    // Rangka Kaki Besi
+
     for (const sx of [-legX, legX]) {
       bench.addPipe([sx, 0, 0.16], [sx, 0.44, 0.16], 0.022, MAT.lampMetal);
       bench.addPipe([sx, 0, -0.16], [sx, 0.44, -0.16], 0.022, MAT.lampMetal);
@@ -313,12 +283,12 @@ function buildParkBenches(parent, meshes) {
       bench.addPipe([sx, 0.58, 0.14], [sx, 0.58, -0.18], 0.018, MAT.lampMetal);
     }
 
-    // 4 Papan Dudukan Kayu
+
     [0.14, 0.04, -0.06, -0.15].forEach(sz => {
       bench.addBox([benchWidth, 0.024, 0.082], [0, 0.44, sz], MAT.woodBench);
     });
 
-    // 3 Papan Sandaran Punggung
+
     const backY = [0.55, 0.65, 0.76];
     const backZ = [-0.19, -0.21, -0.23];
     backY.forEach((by, i) => {
@@ -345,17 +315,17 @@ function buildStreetlamps(parent, meshes) {
     lamp.translation = [...cfg.pos];
     lamp.rotation = [0, cfg.rotY, 0];
 
-    // Pedestal dasar
+
     lamp.addBox([0.34, 0.08, 0.34], [0, 0.04, 0], MAT.lampMetal);
     lamp.addPipe([0, 0.08, 0], [0, 0.45, 0], 0.10, MAT.lampMetal);
     lamp.addSphere([0, 0.46, 0], [0.11, 0.05, 0.11], MAT.lampMetal);
 
-    // Tiang utama
+
     lamp.addPipe([0, 0.46, 0], [0, 3.10, 0], 0.038, MAT.lampMetal);
     lamp.addSphere([0, 1.40, 0], [0.065, 0.035, 0.065], MAT.lampMetal);
     lamp.addSphere([0, 2.50, 0], [0.065, 0.035, 0.065], MAT.lampMetal);
 
-    // Lentera
+
     lamp.addPipe([0, 3.10, 0], [0, 3.25, 0], 0.055, MAT.lampMetal);
     lamp.addBox([0.28, 0.03, 0.28], [0, 3.26, 0], MAT.lampMetal);
     lamp.addBox([0.34, 0.04, 0.34], [0, 3.65, 0], MAT.lampMetal);
@@ -376,23 +346,23 @@ function buildParkBushes(parent, meshes) {
   const bushesGroup = parent.add(createNode('ParkBushesGroup', meshes));
 
   const bushConfigs = [
-    // Sekitar Lobe Utara
+
     { pos: [-6.8, 0, -9.6], scale: [0.42, 0.32, 0.40] },
     { pos: [-3.8, 0,-10.8], scale: [0.36, 0.28, 0.36] },
     { pos: [ 3.8, 0,-10.8], scale: [0.40, 0.30, 0.40] },
     { pos: [ 6.8, 0, -9.6], scale: [0.35, 0.26, 0.35] },
 
-    // Sisi Barat
+
     { pos: [-9.4, 0, -2.4], scale: [0.42, 0.32, 0.42] },
     { pos: [-9.4, 0,  2.4], scale: [0.45, 0.34, 0.44] },
 
-    // Sekitar Lobe Selatan
+
     { pos: [-6.8, 0,  9.6], scale: [0.44, 0.33, 0.42] },
     { pos: [-3.8, 0, 10.8], scale: [0.38, 0.28, 0.38] },
     { pos: [ 3.8, 0, 10.8], scale: [0.42, 0.31, 0.40] },
     { pos: [ 6.8, 0,  9.6], scale: [0.38, 0.28, 0.36] },
 
-    // Sekitar Fasilitas Gym
+
     { pos: [10.2, 0,  2.8], scale: [0.38, 0.28, 0.36] },
     { pos: [12.8, 0,  2.8], scale: [0.36, 0.26, 0.34] },
     { pos: [10.2, 0, -2.8], scale: [0.38, 0.28, 0.36] },
@@ -409,19 +379,16 @@ function buildParkBushes(parent, meshes) {
 function buildParkAmenities(parent, meshes) {
   const amenities = parent.add(createNode('ParkAmenities', meshes));
 
-  // A. Plang Informasi Utama di Sisi Barat (Pintu Masuk Taman)
   const signWest = amenities.add(createNode('ParkSignpost_West', meshes));
   signWest.translation = [-9.5, 0, 0.0];
   signWest.rotation = [0, 90, 0];
   buildSignpost(signWest, meshes);
 
-  // C. Plang Jalur Jogging Track di Sisi Selatan
   const signSouth = amenities.add(createNode('ParkSignpost_South', meshes));
   signSouth.translation = [0, 0, 11.2];
   signSouth.rotation = [0, 180, 0];
   buildSignpost(signSouth, meshes);
 
-  // D. Tempat Sampah Pilah
   const trash1 = amenities.add(createNode('TrashBin_1', meshes));
   trash1.translation = [-7.6, 0, -6.8];
   trash1.rotation = [0, 45, 0];
@@ -434,15 +401,11 @@ function buildParkAmenities(parent, meshes) {
 }
 
 function buildSignpost(signNode, meshes) {
-  // Tiang kayu penyangga
   signNode.addPipe([-0.42, 0, 0], [-0.42, 1.35, 0], 0.035, MAT.treeTrunk);
   signNode.addPipe([ 0.42, 0, 0], [ 0.42, 1.35, 0], 0.035, MAT.treeTrunk);
 
-  // Papan plang informasi
   signNode.addBox([1.02, 0.52, 0.045], [0, 1.05, 0], MAT.signPlaque);
-  // Header hijau
   signNode.addBox([1.06, 0.12, 0.055], [0, 1.32, 0], MAT.signGreen);
-  // Bingkai bawah
   signNode.addBox([1.04, 0.02, 0.050], [0, 0.78, 0], MAT.treeTrunk);
 }
 
@@ -450,11 +413,9 @@ function buildTrashBin(trashNode, meshes) {
   trashNode.addPipe([0, 0, 0], [0, 0.85, 0], 0.030, MAT.lampMetal);
   trashNode.addPipe([-0.25, 0.65, 0], [0.25, 0.65, 0], 0.025, MAT.lampMetal);
 
-  // Tabung 1: Hijau Organik
   trashNode.addPipe([-0.25, 0.25, 0], [-0.25, 0.75, 0], 0.16, MAT.trashCanBody);
   trashNode.addSphere([-0.25, 0.76, 0], [0.16, 0.08, 0.16], MAT.trashCanBody);
 
-  // Tabung 2: Biru Daur Ulang
   trashNode.addPipe([0.25, 0.25, 0], [0.25, 0.75, 0], 0.16, MAT.blue);
   trashNode.addSphere([0.25, 0.76, 0], [0.16, 0.08, 0.16], MAT.blue);
 }
@@ -462,10 +423,8 @@ function buildTrashBin(trashNode, meshes) {
 function buildLakeEcosystem(parent, meshes) {
   const ecoGroup = parent.add(createNode('LakeEcosystem', meshes));
 
-  // 3. Koloni Teratai Mekar
   buildLotusColonies(ecoGroup, meshes);
 
-  // 4. Rumpun Gelagah & Buluh Rawa
   buildCattailReeds(ecoGroup, meshes);
 }
 
@@ -475,7 +434,7 @@ function buildLotusColonies(parent, meshes) {
   const { topCx, topCz, botCx, botCz } = LAKE8;
 
   const colonies = [
-    // Lobe Utara sisi Barat
+
     {
       center: [topCx - 2.8, 0, topCz - 1.2],
       pads: [
@@ -486,7 +445,7 @@ function buildLotusColonies(parent, meshes) {
       ],
       flowers: [{ dx: 0.0, dz: 0.0 }, { dx: -0.3, dz: 0.4 }]
     },
-    // Lobe Utara sisi Timur
+
     {
       center: [topCx + 2.5, 0, topCz + 1.2],
       pads: [
@@ -496,7 +455,7 @@ function buildLotusColonies(parent, meshes) {
       ],
       flowers: [{ dx: 0.0, dz: 0.0 }]
     },
-    // Lobe Selatan sisi Timur
+
     {
       center: [botCx + 2.6, 0, botCz + 1.2],
       pads: [
@@ -507,7 +466,7 @@ function buildLotusColonies(parent, meshes) {
       ],
       flowers: [{ dx: 0.0, dz: 0.0 }]
     },
-    // Lobe Selatan sisi Barat
+
     {
       center: [botCx - 2.5, 0, botCz - 1.2],
       pads: [

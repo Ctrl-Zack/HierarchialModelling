@@ -58,7 +58,6 @@ function createProgram(gl, vsSrc, fsSrc) {
 }
 
 async function initShaders(gl) {
-  // Memuat langsung dari file .glsl di folder shaders/
   const [vsSource, fsSource] = await Promise.all([
     loadShaderFile('shaders/vertex.glsl'),
     loadShaderFile('shaders/fragment.glsl')

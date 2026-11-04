@@ -9,7 +9,6 @@ const Mat4 = {
     ]);
   },
 
-  // out = a * b (transformasi b diterapkan DULU, lalu a)
   multiply(a, b) {
     const o = new Float32Array(16);
     for (let c = 0; c < 4; c++) {
@@ -69,7 +68,6 @@ const Mat4 = {
     ]);
   },
 
-  // Rotasi mengelilingi sumbu sembarang (axis = unit vector) - rumus Rodrigues
   fromAxisAngle(x, y, z, rad) {
     const c = Math.cos(rad), s = Math.sin(rad), t = 1 - c;
     return new Float32Array([
@@ -80,7 +78,6 @@ const Mat4 = {
     ]);
   },
 
-  // Versi "post-multiply" (m * T, m * R, m * S)
   translate(m, x, y, z) { return Mat4.multiply(m, Mat4.translation(x, y, z)); },
   rotateX(m, rad)       { return Mat4.multiply(m, Mat4.rotationX(rad)); },
   rotateY(m, rad)       { return Mat4.multiply(m, Mat4.rotationY(rad)); },
@@ -119,7 +116,6 @@ const Mat4 = {
     ]);
   },
 
-  // Titik 3D (x,y,z) dikali matriks 4x4 (w = 1)
   transformPoint(m, p) {
     return [
       m[0]*p[0] + m[4]*p[1] + m[8]*p[2]  + m[12],
@@ -128,8 +124,6 @@ const Mat4 = {
     ];
   },
 
-  // Normal matrix = inverse-transpose 3x3 kiri-atas (lewat matriks kofaktor;
-  // faktor determinan tidak masalah karena normal dinormalisasi di shader)
   normalMatrix(m) {
     const M = (r, c) => m[c * 4 + r];
     const out = new Float32Array(9);

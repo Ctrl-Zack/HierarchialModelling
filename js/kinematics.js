@@ -52,9 +52,6 @@ function ellipticalRearCandidates(S, Jf) {
   const centerDist = Math.hypot(dy, dz);
   const along = (EL_L_REAR ** 2 - S.beamLen ** 2 + centerDist ** 2) / (2 * centerDist);
   const heightSquared = EL_L_REAR ** 2 - along ** 2;
-  // if (heightSquared < -1e-8) {
-  //   throw new Error(`Elliptical linkage cannot reach stride ${S.stride}°.`);
-  // }
 
   const height = Math.sqrt(Math.max(0, heightSquared));
   const unitY = dy / centerDist;
@@ -93,7 +90,6 @@ function solveEllipticalSide(S, strideDeg) {
   S.stride = strideDeg;
   const thRad = strideDeg * DEG;
 
-  // 1) Titik engsel stang depan bawah Jf
   const Jf = [
     S.xPos,
     EL_FRONT_P1[0] - EL_H_DOWN * Math.cos(thRad),
@@ -118,7 +114,6 @@ function solveEllipticalSide(S, strideDeg) {
 
   const Jr = [S.xPos, rearY, rearZ];
 
-  // 3) Update geometri batang pedal dan pelat pijakan kaki horizontal di atas lantai
   S.pedalBeam.parts[0].matrix = beamBoxMatrix(Jf, Jr, 0.1, 0.025);
 
   const tPlate = 0.44;
@@ -148,6 +143,5 @@ function solveEllipticalSide(S, strideDeg) {
 
 function solveAirWalkerSide(S, swingDeg) {
   S.swing = swingDeg;
-  // Pendulum berputar pada sumbu X (maju/mundur)
   S.pivot.rotation[0] = swingDeg;
 }
