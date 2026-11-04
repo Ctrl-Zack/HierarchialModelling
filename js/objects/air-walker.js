@@ -1,7 +1,3 @@
-/* =========================================================================
-   3. OUTDOOR AIR WALKER / SPACE WALKER (Sesuai Foto Rangka U & Ayunan Pendulum)
-   ========================================================================= */
-
 const AW_PIVOT_Y = 1.35;
 const AW_ARM_LEN = 0.98;
 const AW_SIDE_X  = 0.29;

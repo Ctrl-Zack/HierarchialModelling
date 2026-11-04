@@ -1,20 +1,4 @@
 #version 300 es
-// ============================================================================
-// REALISTIC OUTDOOR PARK SHADER — WITH PROCEDURAL NOISE WATER SHADER
-// Berdasarkan referensi: water-shader.html (Classic Perlin Noise Water Shader)
-// ============================================================================
-// Fitur:
-// 1. Water Shader Klasik (Perlin 3D Simplex/Noise cnoise, multi-oktaf,
-//    Big Waves + Small Waves, per-pixel normal gradient, depth/surface color mix).
-// 2. Dual-Source Outdoor Lighting: Direct Sun Light + Sky Dome Fill.
-// 3. Hemispherical Atmospheric Irradiance (Sky Zenit + Horizon + Grass Ground Bounce).
-// 4. Half-Lambert Soft-Wrap Diffuse.
-// 5. Foliage Subsurface Scattering (Dedaunan bercahaya alami tembus pandang).
-// 6. Schlick's Fresnel Reflectance untuk pipa logam dan rangka mesin gym.
-// 7. Contact Ambient Occlusion dekat tanah.
-// 8. ACES Filmic Tone Mapping + Depth Aerial Fog.
-// ============================================================================
-
 precision highp float;
 
 in vec3 v_normal;
@@ -32,9 +16,6 @@ uniform float u_Time;         // Waktu animasi (detik)
 
 out vec4 outColor;
 
-// ============================================================================
-// 1. FUNGSI PERLIN NOISE 3D (Dari referensi water-shader.html)
-// ============================================================================
 vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
 vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
 vec3 fade(vec3 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
@@ -93,9 +74,6 @@ float cnoise(vec3 P) {
     return 2.2 * mix(ny.x, ny.y, s.z);
 }
 
-// ============================================================================
-// 2. FUNGSI ELEVASI GELOMBANG AIR (Dari getElevation di water-shader.html)
-// ============================================================================
 float getWaterElevation(vec2 pos, float time) {
     // Big Waves: gelombang besar terarah
     float elevation = sin(pos.x * 2.8 + time * 0.51) *
@@ -113,9 +91,6 @@ float getWaterElevation(vec2 pos, float time) {
     return elevation;
 }
 
-// ============================================================================
-// 3. ACES FILMIC TONE MAPPING
-// ============================================================================
 vec3 ACESFilm(vec3 x) {
     const float a = 2.51;
     const float b = 0.03;
@@ -139,9 +114,6 @@ void main() {
     vec3 L = normalize(u_LightDir);
     float distToCam = length(u_CameraPos - v_worldPos);
 
-    // ========================================================================
-    // B. KHUSUS WATER SHADER (Referensi water-shader.html)
-    // ========================================================================
     if (u_IsWater == 1) {
         // 1. Hitung elevasi dan normal gelombang air via finite difference
         float shift = 0.045;
@@ -190,9 +162,6 @@ void main() {
         return;
     }
 
-    // ========================================================================
-    // C. PENCARIAN & SHADING OBJEK PARK REGULER (PBR-INSPIRED OUTDOOR)
-    // ========================================================================
     vec3 albedo = pow(u_Color, vec3(2.2));
 
     // Ambien Hemisferik (Langit biru di atas + pantulan hijau rumput dari bawah)

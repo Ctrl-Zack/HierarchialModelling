@@ -1,5 +1,4 @@
 #version 300 es
-// ---------- VERTEX SHADER ----------
 // Model -> World -> View -> Clip. Normal diubah dengan u_NormalMatrix
 // (inverse-transpose 3x3 model matrix) agar benar walau ada non-uniform scale.
 layout(location = 0) in vec3 a_position;

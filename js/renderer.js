@@ -56,8 +56,8 @@ function drawAxes(gl, U, meshes, frame, L = 0.22) {
 // Cincin seleksi kotak base di atas lantai (RTS-style placement box)
 function drawSelectionBox(gl, U, meshes, baseWorld, halfW = 1.8, halfD = 1.0) {
   const y = 0.045;
-  const c = [0.15, 0.90, 0.45];
-  const r = 0.014;
+  const c = [0.10, 1.00, 0.32];
+  const r = 0.022;
 
   gl.disable(gl.DEPTH_TEST);
   const p1 = [-halfW, y, -halfD];
@@ -69,8 +69,8 @@ function drawSelectionBox(gl, U, meshes, baseWorld, halfW = 1.8, halfD = 1.0) {
   for (let i = 0; i < 4; i++) {
     const a = corners[i], b = corners[(i + 1) % 4];
     drawMesh(gl, U, meshes.cylinder, Mat4.multiply(baseWorld, pipeMatrix(a, b, r)), { color: c }, 1);
-    const cornerBox = Mat4.scale(Mat4.translation(a[0], a[1], a[2]), 0.045, 0.045, 0.045);
-    drawMesh(gl, U, meshes.box, Mat4.multiply(baseWorld, cornerBox), { color: [1.0, 0.90, 0.20] }, 1);
+    const cornerBox = Mat4.scale(Mat4.translation(a[0], a[1], a[2]), 0.04, 0.04, 0.04);
+    drawMesh(gl, U, meshes.box, Mat4.multiply(baseWorld, cornerBox), { color: c }, 1);
   }
   gl.enable(gl.DEPTH_TEST);
 }

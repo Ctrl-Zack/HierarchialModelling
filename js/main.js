@@ -64,7 +64,6 @@ async function main() {
     alt: true,
 
     // Tampilan
-    showHighlight: false,
     showAxes: false,
     showGrid: false,
     showScenery: true
@@ -264,8 +263,8 @@ async function main() {
     // Traversal Seluruh Pohon Hierarki Mulai dari Root (Matrix Stack)
     drawNode(gl, U, root, Mat4.identity());
 
-    // Highlight Kotak Seleksi Base: HANYA jika ada alat yang sedang dipilih
-    if (state.showHighlight && state.selectedMachine) {
+    // Baseline hijau menandai alas mesin yang sedang dipilih.
+    if (state.selectedMachine) {
       if (state.selectedMachine === 'latPull') {
         drawSelectionBox(gl, U, meshes, latPull.baseNode.world, 1.95, 0.95);
       } else if (state.selectedMachine === 'elliptical') {

@@ -1,11 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
-/* ==========================================================================
-   MINIMALIST INDUSTRIAL / CAD 3D SIMULATION UI STYLESHEET
-   Style: Focus on 3D Rendering Canvas, Unified Right Sidebar for Controls & Reference
-   Aesthetic: Ultra-clean, dark slate, balanced whitespace, anti-AI-slop
-   ========================================================================== */
-
 :root {
   --bg-app: #090c13;
   --bg-surface: #0f1420;
@@ -62,9 +56,6 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ==========================================================================
-   APP CONTAINER & TOP NAVBAR
-   ========================================================================== */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -121,7 +112,6 @@ html, body {
   margin: 0;
 }
 
-/* Navbar Actions */
 .nav-actions {
   display: flex;
   align-items: center;
@@ -173,9 +163,6 @@ html, body {
   border-color: rgba(59, 130, 246, 0.4);
 }
 
-/* ==========================================================================
-   WORKSPACE LAYOUT: DOMINANT 3D VIEWPORT + UNIFIED RIGHT SIDEBAR
-   ========================================================================== */
 .app-workspace {
   flex: 1;
   display: grid;
@@ -191,9 +178,6 @@ html, body {
   grid-template-columns: 1fr 0px !important;
 }
 
-/* ==========================================================================
-   DOMINANT 3D VIEWPORT CONTAINER (EXPANDED TO MAXIMUM CANVAS FOCUS)
-   ========================================================================== */
 .viewport-pane {
   position: relative;
   width: 100%;
@@ -220,7 +204,6 @@ canvas#glcanvas.dragging {
   cursor: grabbing;
 }
 
-/* Tag Info Viewport Minimalis */
 .viewport-overlay-tag {
   position: absolute;
   top: 14px;
@@ -257,7 +240,6 @@ canvas#glcanvas.dragging {
   display: inline-block;
 }
 
-/* Keyboard help trigger and popup */
 #hudHelp {
   position: absolute;
   left: 14px;
@@ -401,7 +383,6 @@ canvas#glcanvas.dragging {
   opacity: 0.6;
 }
 
-/* Credits HUD (Kreator) di Sudut Bawah Kanan Layar Viewport */
 .credits-hud {
   position: absolute;
   right: 14px;
@@ -434,7 +415,6 @@ canvas#glcanvas.dragging {
   font-weight: 600;
 }
 
-/* Error message banner */
 #error {
   position: absolute;
   left: 14px;
@@ -450,9 +430,6 @@ canvas#glcanvas.dragging {
   z-index: 100;
 }
 
-/* ==========================================================================
-   UNIFIED RIGHT SIDEBAR (#panel - KONTROL & REFERENSI TERINTEGRASI)
-   ========================================================================== */
 #panel {
   position: relative;
   width: 100%;
@@ -499,7 +476,6 @@ canvas#glcanvas.dragging {
   color: var(--text-muted);
 }
 
-/* Play/Pause Button */
 .btn-play {
   width: 32px;
   height: 32px;
@@ -526,7 +502,6 @@ canvas#glcanvas.dragging {
   color: #fca5a5;
 }
 
-/* Navigasi Tab Terpadu (Kontrol | Referensi | Hierarki | Opsi) */
 .nav-tabs {
   display: flex;
   background: var(--bg-app);
@@ -562,7 +537,6 @@ canvas#glcanvas.dragging {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Konten Tab */
 .tab-content {
   display: none;
 }
@@ -572,7 +546,6 @@ canvas#glcanvas.dragging {
   gap: 10px;
 }
 
-/* Segmented Control Pemilih Alat */
 .segment-group {
   display: flex;
   gap: 4px;
@@ -610,7 +583,6 @@ canvas#glcanvas.dragging {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-/* Status HUD Base */
 .base-hud {
   display: flex;
   justify-content: space-between;
@@ -665,7 +637,6 @@ canvas#glcanvas.dragging {
   cursor: not-allowed;
 }
 
-/* Kotak Kontrol Ringkas */
 .control-box {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
@@ -700,7 +671,6 @@ canvas#glcanvas.dragging {
   color: var(--text-secondary);
 }
 
-/* Tampilan Slider Artikulasi Dinamis Sesuai Alat Aktif */
 #tab-control:has(#btnSelectLatPull.active) #rowPullAngle {
   display: flex !important;
 }
@@ -733,7 +703,6 @@ canvas#glcanvas.dragging {
   display: block !important;
 }
 
-/* Opsi Antiphase hanya aktif & tampil untuk Lat Pull dan Air Walker (tidak untuk Elliptical) */
 #tab-control:has(#btnSelectLatPull.active) #rowAltOption,
 #tab-control:has(#btnSelectAirWalker.active) #rowAltOption {
   display: flex !important;
@@ -756,9 +725,6 @@ canvas#glcanvas.dragging {
   border: 1px solid rgba(59, 130, 246, 0.18);
 }
 
-/* ==========================================================================
-   CUSTOM REFINED INPUTS: SLIDERS & CHECKBOXES
-   ========================================================================== */
 .row input[type=range] {
   -webkit-appearance: none;
   appearance: none;
@@ -814,7 +780,6 @@ canvas#glcanvas.dragging {
   background: var(--accent-primary);
 }
 
-/* Checkbox Toggle List */
 .toggle-list {
   display: flex;
   flex-direction: column;
@@ -869,7 +834,6 @@ canvas#glcanvas.dragging {
   transform: rotate(45deg);
 }
 
-/* Pohon Hierarki Monospace */
 #tree {
   margin: 4px 0 0;
   padding: 8px 10px;
@@ -923,9 +887,6 @@ canvas#glcanvas.dragging {
   line-height: 1.4;
 }
 
-/* ==========================================================================
-   TAB REFERENSI TERPADU DI DALAM SIDEBAR (#tab-reference)
-   ========================================================================== */
 .ref-filter-bar {
   display: flex;
   background: var(--bg-app);
@@ -1091,9 +1052,6 @@ canvas#glcanvas.dragging {
   font-weight: 500;
 }
 
-/* ==========================================================================
-   IMAGE LIGHTBOX MODAL (CLEAN FULL PREVIEW)
-   ========================================================================== */
 .lightbox-modal {
   position: fixed;
   inset: 0;
@@ -1152,9 +1110,6 @@ canvas#glcanvas.dragging {
   color: var(--text-primary);
 }
 
-/* ==========================================================================
-   RESPONSIVE DESIGN BREAKPOINTS
-   ========================================================================== */
 @media (max-width: 900px) {
   .app-workspace {
     grid-template-columns: 1fr;

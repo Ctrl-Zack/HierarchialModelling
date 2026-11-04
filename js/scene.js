@@ -1,10 +1,4 @@
 'use strict';
-
-/**
- * Shared scene graph utilities, materials, and hierarchy construction.
- * Machine builders are defined in js/objects/.
- */
-
 const MAT = {
   // Mesin Outdoor Fitness:
   blue:          { color: [0.10, 0.24, 0.80], shine: 80,  spec: 0.65 },   // rangka tiang biru
@@ -147,10 +141,7 @@ function createNode(name, meshes) {
   return new Node(name, meshes);
 }
 
-/* =========================================================================
-   KONFIGURASI POSISI & ROTASI AWAL (DEFAULT BASES)
-   Ubah nilai di bawah ini jika ingin mengganti posisi/rotasi awal alat.
-   ========================================================================= */
+
 // Offset translasi environment di sumbu X agar FitnessPad tepat berada di tengah origin (0, 0, 0)
 const ENV_OFFSET_X = -12.5;
 

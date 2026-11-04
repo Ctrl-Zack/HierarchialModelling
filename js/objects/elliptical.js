@@ -1,8 +1,4 @@
-﻿/* =========================================================================
-   2. OUTDOOR ELLIPTICAL TRAINER
-   ========================================================================= */
-
-const EL_FRONT_P1 = [1.16, -0.58]; // Y, Z poros stang depan
+﻿const EL_FRONT_P1 = [1.16, -0.58]; // Y, Z poros stang depan
 const EL_REAR_P2  = [0.36,  0.86]; // Y, Z poros belakang rendah kompak
 const EL_H_UP     = 0.9;          // stang pegangan atas
 const EL_H_DOWN   = 1;          // pipa stang bawah ke engsel pedal

@@ -1,9 +1,4 @@
 'use strict';
-
-/**
- * Math & Matrix Utilities for 3D Graphics
- * Column-major 4x4 matrix implementation matching WebGL specification.
- */
 const Mat4 = {
   identity() {
     return new Float32Array([

@@ -188,10 +188,6 @@ function setupUI(state, cam, sceneData, canvas) {
     state.alt = e.target.checked;
   });
 
-  document.getElementById('chkHighlight').addEventListener('change', e => {
-    state.showHighlight = e.target.checked;
-  });
-
   document.getElementById('chkAxes').addEventListener('change', e => {
     state.showAxes = e.target.checked;
   });

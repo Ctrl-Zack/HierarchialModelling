@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Urban Park Environment — Danau Bentuk 8 Menyatu Sempurna,
- * Jogging Track Melingkari Danau Bentuk 8 Tanpa Putus,
- * dengan Pohon, Bangku, Plang, Lampu, Semak, dan Alat Gym di Sekitarnya.
- */
-
 function buildUrbanParkEnvironment(envNode, meshes) {
   // 1. Danau Bentuk 8 Menyatu Tanpa Jarak (Seamless Figure-8 Lake)
   buildFigure8Lake(envNode, meshes);
@@ -37,12 +31,6 @@ function buildUrbanParkEnvironment(envNode, meshes) {
   return envNode;
 }
 
-/* ==========================================================================
-   GEOMETRI DANAU BENTUK 8 MENYATU (SEAMLESS FIGURE-8 LAKE)
-   Dua lingkaran (Utara & Selatan) saling tumpang-tindih dan disatukan
-   oleh silinder pinggang tengah (waist) sehingga air menyambung 100% tanpa celah.
-   ========================================================================== */
-
 const LAKE8 = {
   // Lingkaran Utara (Top Lobe)
   topCx: 0, topCz: -3.5,
@@ -71,10 +59,7 @@ function buildFigure8Lake(parent, meshes) {
     sandExtra, shallowExtra
   } = LAKE8;
 
-  // -------------------------------------------------------------
-  // A. Lapisan Pasir Tepi Danau (Sandy Bank Shelf)
-  // Menyatukan lingkaran utara, selatan, dan pinggang tengah
-  // -------------------------------------------------------------
+
   lakeRoot.addCylinder([topRx + sandExtra, topRz + sandExtra], 0.014,
     [topCx, 0.007, topCz], MAT.lakeSand);
   lakeRoot.addCylinder([botRx + sandExtra, botRz + sandExtra], 0.014,
@@ -82,9 +67,6 @@ function buildFigure8Lake(parent, meshes) {
   lakeRoot.addCylinder([midRx + sandExtra, midRz + sandExtra], 0.014,
     [midCx, 0.007, midCz], MAT.lakeSand);
 
-  // -------------------------------------------------------------
-  // B. Lapisan Air Dangkal (Shallow Turquoise Water)
-  // -------------------------------------------------------------
   lakeRoot.addCylinder([topRx + shallowExtra, topRz + shallowExtra], 0.018,
     [topCx, 0.011, topCz], MAT.waterShallow);
   lakeRoot.addCylinder([botRx + shallowExtra, botRz + shallowExtra], 0.018,
@@ -92,10 +74,6 @@ function buildFigure8Lake(parent, meshes) {
   lakeRoot.addCylinder([midRx + shallowExtra, midRz + shallowExtra], 0.018,
     [midCx, 0.011, midCz], MAT.waterShallow);
 
-  // -------------------------------------------------------------
-  // C. Lapisan Air Danau Utama Berkilau (Deep Blue Water)
-  // Mengalir menyatu secara kontinu dari utara sampai selatan
-  // -------------------------------------------------------------
   lakeRoot.addCylinder([topRx, topRz], 0.022,
     [topCx, 0.016, topCz], MAT.waterDeep);
   lakeRoot.addCylinder([botRx, botRz], 0.022,
@@ -103,9 +81,6 @@ function buildFigure8Lake(parent, meshes) {
   lakeRoot.addCylinder([midRx, midRz], 0.022,
     [midCx, 0.016, midCz], MAT.waterDeep);
 
-  // -------------------------------------------------------------
-  // D. Riak Air Halus (Wave Ripple Rings) di Tiap Lingkaran Danau
-  // -------------------------------------------------------------
   [1.4, 2.4, 3.4].forEach((r, idx) => {
     lakeRoot.addCylinder([r, r], 0.003 - idx * 0.0008,
       [topCx, 0.020, topCz], MAT.waterShallow);
@@ -115,9 +90,6 @@ function buildFigure8Lake(parent, meshes) {
       [botCx, 0.020, botCz], MAT.waterShallow);
   });
 
-  // -------------------------------------------------------------
-  // E. Rentetan Bebatuan Kali Alam di Sepanjang Tepi Danau
-  // -------------------------------------------------------------
   const rockConfigs = [
     // Lingkaran Utara (Lobe Utara)
     { pos: [-4.8, 0.10, -5.8], s: [0.52, 0.26, 0.46], rot:  25, dark: true },
@@ -158,11 +130,6 @@ function buildFigure8Lake(parent, meshes) {
   });
 }
 
-/* ==========================================================================
-   JOGGING TRACK MENGITARI DANAU BENTUK 8
-   Loop tertutup mulus (closed continuous loop) yang melingkari seluruh
-   kontur bentuk 8 danau secara presisi tanpa ada putus atau celah.
-   ========================================================================== */
 function buildFigure8JoggingTrack(parent, meshes) {
   const track = parent.add(createNode('Figure8JoggingTrack', meshes));
 
@@ -181,10 +148,6 @@ function buildFigure8JoggingTrack(parent, meshes) {
   const rawPoints = [];
   const segPerLobe = 36;
 
-  // -------------------------------------------------------------
-  // Bagian 1: Melingkari Lobe Utara (dari pinggang timur ke pinggang barat)
-  // Dimulai dari z = 0 (sisi timur, x > 0), melingkari utara, menuju z = 0 (sisi barat, x < 0)
-  // -------------------------------------------------------------
   const phiStartTop = phi0;
   const phiEndTop = -Math.PI - phi0;
   for (let i = 0; i <= segPerLobe; i++) {
@@ -193,11 +156,6 @@ function buildFigure8JoggingTrack(parent, meshes) {
     const z = -Cz + Rz * Math.sin(phi);
     rawPoints.push({ x, z });
   }
-
-  // -------------------------------------------------------------
-  // Bagian 2: Melingkari Lobe Selatan (dari pinggang barat ke pinggang timur)
-  // Dari z = 0 (sisi barat, x < 0), melingkari selatan, kembali ke z = 0 (sisi timur, x > 0)
-  // -------------------------------------------------------------
   const psiStartBot = Math.PI + phi0;
   const psiEndBot = -phi0;
   // Mulai dari i = 1 untuk menghindari duplikasi titik temu di pinggang barat
@@ -208,10 +166,6 @@ function buildFigure8JoggingTrack(parent, meshes) {
     rawPoints.push({ x, z });
   }
 
-  // -------------------------------------------------------------
-  // Penghalusan Kurva (Laplacian Smoothing Loop)
-  // Menghaluskan lekukan pinggang bentuk 8 agar transisinya anggun & mulus
-  // -------------------------------------------------------------
   const numPts = rawPoints.length;
   let pts = rawPoints.map(p => ({ x: p.x, z: p.z }));
 
@@ -229,9 +183,6 @@ function buildFigure8JoggingTrack(parent, meshes) {
     pts = smoothed;
   }
 
-  // -------------------------------------------------------------
-  // Render Seluruh Segmen Paving & Kerb Pembatas (100% Loop Tertutup)
-  // -------------------------------------------------------------
   for (let i = 0; i < numPts; i++) {
     const p1 = pts[i];
     const p2 = pts[(i + 1) % numPts]; // Menyambung titik terakhir kembali ke titik pertama!
@@ -260,10 +211,6 @@ function buildFigure8JoggingTrack(parent, meshes) {
   }
 }
 
-/* ==========================================================================
-   ZONA LANDASAN KARET MERAH BATA (FITNESS PAD)
-   Terletak di sebelah timur (kanan) di luar jogging track
-   ========================================================================== */
 function buildFitnessPad(parent, meshes) {
   const pad = parent.add(createNode('FitnessPad', meshes));
   pad.translation = [11.5, 0, 0];
@@ -279,9 +226,6 @@ function buildFitnessPad(parent, meshes) {
   pad.addBox([0.08, 0.002, 4.70], [ 2.80, 0.025, 0], MAT.pavingBorder);
 }
 
-/* ==========================================================================
-   POHON PENEDUH RIMBUN DI SEKITAR JOGGING TRACK
-   ========================================================================== */
 function buildShadeTrees(parent, meshes) {
   const treesGroup = parent.add(createNode('ShadeTreesGroup', meshes));
 
@@ -332,9 +276,6 @@ function buildShadeTrees(parent, meshes) {
   });
 }
 
-/* ==========================================================================
-   BANGKU TAMAN KAYU (MENGHADAP KE DANAU BENTUK 8)
-   ========================================================================== */
 function buildParkBenches(parent, meshes) {
   const benchesGroup = parent.add(createNode('ParkBenchesGroup', meshes));
 
@@ -386,9 +327,6 @@ function buildParkBenches(parent, meshes) {
   });
 }
 
-/* ==========================================================================
-   LAMPU TIANG TAMAN (MENERANGI JOGGING TRACK & AREA GYM)
-   ========================================================================== */
 function buildStreetlamps(parent, meshes) {
   const lampsGroup = parent.add(createNode('StreetlampsGroup', meshes));
 
@@ -434,9 +372,6 @@ function buildStreetlamps(parent, meshes) {
   });
 }
 
-/* ==========================================================================
-   SEMAK-SEMAK & LANSKAP TAMAN (BUSHES)
-   ========================================================================== */
 function buildParkBushes(parent, meshes) {
   const bushesGroup = parent.add(createNode('ParkBushesGroup', meshes));
 
@@ -471,9 +406,6 @@ function buildParkBushes(parent, meshes) {
   });
 }
 
-/* ==========================================================================
-   FASILITAS TAMBAHAN: PLANG (PAPAN INFORMASI) & TEMPAT SAMPAH
-   ========================================================================== */
 function buildParkAmenities(parent, meshes) {
   const amenities = parent.add(createNode('ParkAmenities', meshes));
 
@@ -527,9 +459,6 @@ function buildTrashBin(trashNode, meshes) {
   trashNode.addSphere([0.25, 0.76, 0], [0.16, 0.08, 0.16], MAT.blue);
 }
 
-/* ==========================================================================
-   EKOSISTEM DANAU (AIR MANCUR, TERATAI, GELAGAH RAWA)
-   ========================================================================== */
 function buildLakeEcosystem(parent, meshes) {
   const ecoGroup = parent.add(createNode('LakeEcosystem', meshes));
 

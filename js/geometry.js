@@ -1,9 +1,4 @@
 'use strict';
-
-/**
- * Procedural 3D Mesh Generation (Interleaved buffer: Position [vec3] + Normal [vec3])
- */
-
 function createMesh(gl, vertices, indices) {
   const vao = gl.createVertexArray();
   gl.bindVertexArray(vao);

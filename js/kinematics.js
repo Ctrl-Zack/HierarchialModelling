@@ -1,16 +1,4 @@
 ﻿'use strict';
-
-/**
- * Kinematics Mechanism Solvers for Three Outdoor Fitness Machines:
- * 1. Lat Pull Down / Chest Press (Closed-loop parallelogram & link rod solver)
- * 2. Outdoor Elliptical Trainer (Planar Four-Bar Linkage solver)
- * 3. Outdoor Air Walker / Space Walker (Pendulum Leg Swing solver)
- */
-
-/* =========================================================================
-   1. LAT PULL DOWN KINEMATICS
-   ========================================================================= */
-
 function chainMatrix(node, stop) {
   let m = Mat4.identity();
   for (let n = node; n && n !== stop; n = n.parent) {
@@ -57,11 +45,6 @@ function solveSide(S, pullDeg, mainFrame) {
   S.lift = LP_RAIL_LEN * Math.sin(alpha * DEG);
   S.rod.override = pipeMatrix(A, seatPoint(S, mainFrame), 0.028);
 }
-
-
-/* =========================================================================
-   2. OUTDOOR ELLIPTICAL TRAINER KINEMATICS (Four-Bar Linkage)
-   ========================================================================= */
 
 function ellipticalRearCandidates(S, Jf) {
   const dy = Jf[1] - EL_REAR_P2[0];
@@ -162,11 +145,6 @@ function solveEllipticalSide(S, strideDeg) {
 
   S.pedalPos = Pplate;
 }
-
-
-/* =========================================================================
-   3. OUTDOOR AIR WALKER KINEMATICS (Pendulum Leg Swing)
-   ========================================================================= */
 
 function solveAirWalkerSide(S, swingDeg) {
   S.swing = swingDeg;
