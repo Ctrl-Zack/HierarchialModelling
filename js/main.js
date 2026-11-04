@@ -75,6 +75,92 @@ async function main() {
   // 6. UI & Keyboard Input Setup
   const { elPullAngle, elStrideAngle, elAirWalkerAngle, processKeyboardInput, updateUI } = setupUI(state, cam, sceneData, canvas);
 
+  // 6b. Kontrol Kamera & Animasi via Keyboard
+  //   K            : start / stop animasi
+  //   Arrow Keys   : jalan (atas/bawah = maju/mundur, kiri/kanan = geser)
+  //   Spasi        : kamera naik
+  //   Ctrl         : kamera turun (tinggi mata minimum 1.5 m)
+  const MIN_EYE_HEIGHT = 1.5;
+  const WALK_SPEED = 8;        // meter / detik (arrow)
+  const CAM_MOVE_SPEED = 6;    // meter / detik (spasi / ctrl)
+  const ROTATE_SPEED = 70;     // derajat / detik (Shift + arrow)
+  const camKeys = { left: false, right: false, up: false, down: false, rise: false, sink: false, shift: false };
+
+  function isTextField(el) {
+    return !!el && (el.tagName === 'TEXTAREA' ||
+      (el.tagName === 'INPUT' && /^(text|number|search|email|password|url)$/i.test(el.type || 'text')));
+  }
+
+  function setCamKey(e, pressed) {
+    if (isTextField(e.target)) return;
+    camKeys.shift = e.shiftKey; // Shift + Arrow = rotasi kamera
+    let handled = true;
+    switch (e.code) {
+      case 'ArrowLeft':    camKeys.left  = pressed; break;
+      case 'ArrowRight':   camKeys.right = pressed; break;
+      case 'ArrowUp':      camKeys.up    = pressed; break;
+      case 'ArrowDown':    camKeys.down  = pressed; break;
+      case 'Space':        camKeys.rise  = pressed; break;
+      case 'ControlLeft':
+      case 'ControlRight': camKeys.sink  = pressed; break;
+      case 'KeyK':
+        if (pressed && !e.repeat) state.auto = !state.auto; // toggle start/stop
+        break;
+      default: handled = false;
+    }
+    if (handled) {
+      e.preventDefault();
+      e.stopImmediatePropagation(); // hindari bentrok dengan handler lama di setupUI
+    }
+  }
+
+  window.addEventListener('keydown', e => setCamKey(e, true), true);
+  window.addEventListener('keyup', e => setCamKey(e, false), true);
+  window.addEventListener('blur', () => { for (const k in camKeys) camKeys[k] = false; });
+
+  function updateCameraControls(dt) {
+    // Shift + Arrow = rotasi kamera (kiri/kanan = menoleh, atas/bawah = mendongak/menunduk)
+    // Sumbu putar = posisi kamera sendiri (first-person): posisi mata dipertahankan,
+    // yang digeser adalah titik target di depan kamera.
+    if (camKeys.shift && (camKeys.left || camKeys.right || camKeys.up || camKeys.down)) {
+      const p0 = cam.pitch * DEG, y0 = cam.yaw * DEG;
+      const ex = cam.target[0] + cam.dist * Math.cos(p0) * Math.sin(y0);
+      const ey = cam.target[1] + cam.dist * Math.sin(p0);
+      const ez = cam.target[2] + cam.dist * Math.cos(p0) * Math.cos(y0);
+
+      if (camKeys.left)  cam.yaw   += ROTATE_SPEED * dt;
+      if (camKeys.right) cam.yaw   -= ROTATE_SPEED * dt;
+      if (camKeys.up)    cam.pitch -= ROTATE_SPEED * dt;
+      if (camKeys.down)  cam.pitch += ROTATE_SPEED * dt;
+      cam.pitch = Math.min(Math.max(cam.pitch, -80), 85);
+
+      const p1 = cam.pitch * DEG, y1 = cam.yaw * DEG;
+      cam.target[0] = ex - cam.dist * Math.cos(p1) * Math.sin(y1);
+      cam.target[1] = ey - cam.dist * Math.sin(p1);
+      cam.target[2] = ez - cam.dist * Math.cos(p1) * Math.cos(y1);
+    }
+
+    // Arrow (tanpa Shift) = berjalan di bidang horizontal relatif arah pandang kamera
+    const yawRad = cam.yaw * DEG;
+    const fwdX = -Math.sin(yawRad), fwdZ = -Math.cos(yawRad); // arah pandang
+    const rgtX =  Math.cos(yawRad), rgtZ = -Math.sin(yawRad); // kanan kamera
+    const moveF = camKeys.shift ? 0 : (camKeys.up ? 1 : 0) - (camKeys.down ? 1 : 0);
+    const moveR = camKeys.shift ? 0 : (camKeys.right ? 1 : 0) - (camKeys.left ? 1 : 0);
+    if (moveF || moveR) {
+      const len = Math.hypot(moveF, moveR);
+      const step = WALK_SPEED * dt / len;
+      cam.target[0] += (fwdX * moveF + rgtX * moveR) * step;
+      cam.target[2] += (fwdZ * moveF + rgtZ * moveR) * step;
+    }
+
+    if (camKeys.rise) cam.target[1] += CAM_MOVE_SPEED * dt;
+    if (camKeys.sink) cam.target[1] -= CAM_MOVE_SPEED * dt;
+
+    // Tinggi mata kamera tidak boleh di bawah 1.5 m
+    const minTargetY = MIN_EYE_HEIGHT - cam.dist * Math.sin(cam.pitch * DEG);
+    if (cam.target[1] < minTargetY) cam.target[1] = minTargetY;
+  }
+
   // 7. Viewport Resize Helper
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -97,6 +183,7 @@ async function main() {
 
     // ---- Pemrosesan Input Keyboard WASD Real-Time ----
     processKeyboardInput(dt);
+    updateCameraControls(dt);
 
     // ---- Animasi otomatis ----
     if (state.auto) {
@@ -146,7 +233,7 @@ async function main() {
 
     // Kamera Orbit (Dibatasi di atas permukaan tanah agar tidak tembus ke bawah tanah)
     const yaw = cam.yaw * DEG, pitch = cam.pitch * DEG;
-    const eyeY = Math.max(cam.target[1] + cam.dist * Math.sin(pitch), 0.20);
+    const eyeY = Math.max(cam.target[1] + cam.dist * Math.sin(pitch), MIN_EYE_HEIGHT);
     const eye = [
       cam.target[0] + cam.dist * Math.cos(pitch) * Math.sin(yaw),
       eyeY,
