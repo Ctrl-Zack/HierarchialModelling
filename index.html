@@ -1,170 +1,339 @@
-<!DOCTYPE html>
-<html lang="id">
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WebGL2 Object Hierarchy – 3 Outdoor Fitness Machines</title>
+  <title>WebGL2 Object Hierarchy &amp; Kinematics &ndash; 3 Outdoor Fitness Machines</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-  <canvas id="glcanvas"></canvas>
-  <div id="error"></div>
+  <div class="app-container">
 
-  <!-- HUD Bantuan Keyboard Game-style (Bawah Kiri) -->
-  <div id="hudHelp">
-    <span class="hud-key">W</span><span class="hud-key">A</span><span class="hud-key">S</span><span class="hud-key">D</span> Geser Base
-    <span class="hud-sep">•</span>
-    <span class="hud-key">Q</span><span class="hud-key">E</span> Putar
-    <span class="hud-sep">•</span>
-    <span class="hud-key">1</span><span class="hud-key">2</span><span class="hud-key">3</span> Pilih Alat
-    <span class="hud-sep">•</span>
-    <span class="hud-key">R</span> Reset
-    <span class="hud-sep">•</span>
-    <span class="hud-key">Spasi</span> Animasi
+    <header class="app-navbar">
+      <div class="nav-brand">
+        <div class="brand-text">
+          <h1>Outdoor Fitness Park</h1>
+          <div class="panel-title">
+            <!-- <h1>Outdoor Fitness Park</h1> -->
+            <p class="sub">Muhammad Zaky Zein - 5025241148, Isabella Sienna Sulisthio - 5025241199</p>
+            <p class="sub"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button id="btnToggleSidebar" class="nav-toggle-panel" title="Buka / Tutup Panel Kontrol &amp; Referensi">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="appWorkspace" class="app-workspace">
+
+      <section class="viewport-pane">
+        <canvas id="glcanvas"></canvas>
+        <div id="error"></div>
+
+        <div id="hudHelp">
+          <span class="hud-key">W</span><span class="hud-key">A</span><span class="hud-key">S</span><span class="hud-key">D</span> Move Base
+          <span class="hud-sep">•</span>
+          <span class="hud-key">Q</span><span class="hud-key">E</span> Rotate
+          <span class="hud-sep">•</span>
+          <span class="hud-key">1</span><span class="hud-key">2</span><span class="hud-key">3</span> Select Machine
+          <span class="hud-sep">•</span>
+          <span class="hud-key">R</span> Reset
+          <span class="hud-sep">•</span>
+          <span class="hud-key">Space</span> Animation
+        </div>
+
+
+      </section>
+
+      <aside id="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h1>Outdoor Fitness Park</h1>
+            <p class="sub">3D Environment Modeling</p>
+          </div>
+          <button id="btnAuto" class="btn-play" title="Mulai / Jeda Animation">▶</button>
+        </div>
+
+        <div class="nav-tabs">
+          <button class="nav-tab active" data-tab="tab-control">Control</button>
+          <button class="nav-tab" data-tab="tab-reference">Reference</button>
+          <button class="nav-tab" data-tab="tab-tree">Hierarchy</button>
+          <button class="nav-tab" data-tab="tab-settings">Options</button>
+        </div>
+
+        <div id="tab-control" class="tab-content active">
+          <div class="segment-group">
+            <button id="btnSelectLatPull" class="segment-btn active">1. Lat Pull</button>
+            <button id="btnSelectElliptical" class="segment-btn">2. Elliptical</button>
+            <button id="btnSelectAirWalker" class="segment-btn">3. Air Walker</button>
+          </div>
+
+          <div class="base-hud">
+            <div class="hud-info">
+              <span class="hud-label">ACTIVE BASE:</span>
+              <span id="baseStatusText">LatPull | X: -3.2m, Z: 0.0m</span>
+            </div>
+            <button id="btnResetBase" class="mini-btn" title="Reset to Original Position">Reset</button>
+          </div>
+
+          <div class="control-box articulation-box">
+            <div class="box-tag">MOVEMENT ARTICULATION (CHILD NODES)</div>
+
+            <div id="rowPullAngle" class="row">
+              <label class="t" for="pullAngle">
+                <span>1. Lat Pull Movement</span>
+                <span id="angleVal" class="val-badge">0.0°</span>
+              </label>
+              <input id="pullAngle" type="range" min="0" max="45" step="0.1" value="0">
+            </div>
+
+            <div id="rowStrideAngle" class="row">
+              <label class="t" for="strideAngle">
+                <span>2. Elliptical Stride</span>
+                <span id="strideVal" class="val-badge">0.0°</span>
+              </label>
+              <input id="strideAngle" type="range" min="-12" max="12" step="0.1" value="0">
+            </div>
+
+            <div id="rowAirWalkerAngle" class="row">
+              <label class="t" for="airWalkerAngle">
+                <span>3. Air Walker Swing</span>
+                <span id="airWalkerVal" class="val-badge">0.0°</span>
+              </label>
+              <input id="airWalkerAngle" type="range" min="-25" max="25" step="0.1" value="0">
+            </div>
+
+            <div id="rowAltOption" class="row" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-subtle);">
+              <label class="check">
+                <input id="chkAlt" type="checkbox" checked> Left/Right Antiphase Movement
+              </label>
+            </div>
+
+            <div id="rowNoMachine" class="hint-small" style="display:none; text-align:center; padding: 6px 0; color: var(--text-muted);">
+              Select a machine above to adjust its articulation.
+            </div>
+          </div>
+
+          <div class="control-box">
+            <div class="box-tag">MOVE SELECTED BASE (PARENT / WASD)</div>
+
+            <div class="row">
+              <label class="t" for="basePosX">
+                <span>Move Along X-Axis</span>
+                <span id="basePosXVal" class="val-badge">-3.2m</span>
+              </label>
+              <input id="basePosX" type="range" min="-7" max="7" step="0.1" value="-3.2">
+            </div>
+
+            <div class="row">
+              <label class="t" for="basePosZ">
+                <span>Move Along Z-Axis</span>
+                <span id="basePosZVal" class="val-badge">0.0m</span>
+              </label>
+              <input id="basePosZ" type="range" min="-7" max="7" step="0.1" value="0.0">
+            </div>
+
+            <div class="row">
+              <label class="t" for="baseRotY">
+                <span>Rotation (Y-Axis)</span>
+                <span id="baseRotYVal" class="val-badge">0°</span>
+              </label>
+              <input id="baseRotY" type="range" min="0" max="360" step="1" value="0">
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-reference" class="tab-content">
+          <div class="ref-filter-bar">
+            <button class="ref-filter-pill active" data-ref="all">All</button>
+            <button class="ref-filter-pill" data-ref="latPull">1. Lat Pull</button>
+            <button class="ref-filter-pill" data-ref="elliptical">2. Elliptical</button>
+            <button class="ref-filter-pill" data-ref="airWalker">3. Air Walker</button>
+          </div>
+
+          <article class="ref-card" data-machine="latPull">
+            <div class="ref-card-header">
+              <div class="ref-card-title">
+                <h3>1. Lat Pull Down / Dual Press</h3>
+                <p>Opposing dual levers (bodyweight counterweight)</p>
+              </div>
+              <span class="ref-badge">Tuas 4-Batang</span>
+            </div>
+
+            <div class="ref-media-item">
+              <span class="ref-media-label">Machine Photo (Side View &amp; Lever)</span>
+              <div class="ref-media-wrapper">
+                <img src="src/latpull.jpeg" alt="Lat Pull Down Reference Photo" loading="lazy" onclick="openLightbox('src/latpull.jpeg', 'Outdoor Lat Pull Down Machine (Side View &amp; Lever)')">
+              </div>
+            </div>
+
+            <div class="ref-specs-table">
+              <div class="ref-spec-row">
+                <span class="spec-key">Parent Node</span>
+                <span class="spec-val">LatPullBaseNode (X = -3.2m)</span>
+              </div>
+              <div class="ref-spec-row">
+                <span class="spec-key">Motion Axis</span>
+                <span class="spec-val">UpperPivot Rotasi Z (0&deg; &ndash; 45&deg;)</span>
+              </div>
+              <div class="ref-spec-row">
+                <span class="spec-key">Seat Movement</span>
+                <span class="spec-val">Seat rises &uarr; 15cm</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="ref-card" data-machine="elliptical">
+            <div class="ref-card-header">
+              <div class="ref-card-title">
+                <h3>2. Outdoor Elliptical Trainer</h3>
+                <p>Planar four-bar linkage (elliptical path)</p>
+              </div>
+              <span class="ref-badge">Planar 4-Bar</span>
+            </div>
+
+            <div class="ref-media-item">
+              <span class="ref-media-label">Side View (Linkage)</span>
+              <div class="ref-media-wrapper">
+                <img src="src/elliptical-samping.jpeg" alt="Elliptical Side View Reference Photo" loading="lazy" onclick="openLightbox('src/elliptical-samping.jpeg', 'Elliptical (Side View)')">
+              </div>
+            </div>
+
+            <div class="ref-media-item">
+              <span class="ref-media-label">Perspective View</span>
+              <div class="ref-media-wrapper">
+                <img src="src/elliptical.jpeg" alt="Elliptical Reference Photo" loading="lazy" onclick="openLightbox('src/elliptical.jpeg', 'Elliptical (Perspective View)')">
+              </div>
+            </div>
+
+            <div class="ref-media-item">
+              <span class="ref-media-label">Demonstration Video</span>
+              <div class="ref-media-wrapper">
+                <video src="src/praktek-elliptical.mp4" controls playsinline preload="metadata" title="Elliptical Demonstration Video"></video>
+              </div>
+            </div>
+
+            <div class="ref-media-item">
+              <span class="ref-media-label">Movement Cycle Video</span>
+              <div class="ref-media-wrapper">
+                <video src="src/gerakan-elliptical.mp4" controls playsinline preload="metadata" title="Elliptical Movement Video"></video>
+              </div>
+            </div>
+
+            <div class="ref-specs-table">
+              <div class="ref-spec-row">
+                <span class="spec-key">Parent Node</span>
+                <span class="spec-val">EllipticalBaseNode (X = +0.5m)</span>
+              </div>
+              <div class="ref-spec-row">
+                <span class="spec-key">Motion Axis</span>
+                <span class="spec-val">Front/Rear Pivot Rotasi X (&plusmn;12&deg;)</span>
+              </div>
+              <div class="ref-spec-row">
+                <span class="spec-key">Pedal Phase</span>
+                <span class="spec-val">Antiphase 180&deg; phase difference between legs</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="ref-card" data-machine="airWalker">
+            <div class="ref-card-header">
+              <div class="ref-card-title">
+                <h3>3. Outdoor Air Walker</h3>
+                <p>Vertical pendulum suspended from a U-shaped frame</p>
+              </div>
+              <span class="ref-badge">Pendulum Swing</span>
+            </div>
+
+            <div class="ref-media-item">
+              <span class="ref-media-label">Machine Photo</span>
+              <div class="ref-media-wrapper">
+                <img src="src/airwalker.jpeg" alt="Air Walker Reference Photo" loading="lazy" onclick="openLightbox('src/airwalker.jpeg', 'Outdoor Air Walker Reference Photo')">
+              </div>
+            </div>
+
+            <div class="ref-media-item">
+              <span class="ref-media-label">Field Demonstration Video</span>
+              <div class="ref-media-wrapper">
+                <video src="src/praktek-airwalker.mp4" controls playsinline preload="metadata" title="Air Walker Demonstration Video"></video>
+              </div>
+            </div>
+
+            <div class="ref-specs-table">
+              <div class="ref-spec-row">
+                <span class="spec-key">Parent Node</span>
+                <span class="spec-val">AirWalkerBaseNode (X = +3.2m)</span>
+              </div>
+              <div class="ref-spec-row">
+                <span class="spec-key">Motion Axis</span>
+                <span class="spec-val">AirWalkerPivot Rotasi X (&plusmn;22&deg;)</span>
+              </div>
+              <div class="ref-spec-row">
+                <span class="spec-key">Mechanism</span>
+                <span class="spec-val">Free pendulum swing without load</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div id="tab-tree" class="tab-content">
+          <div class="box-tag" style="margin-top:2px;">MATRIX INHERITANCE STRUCTURE</div>
+          <div id="tree"></div>
+          <div id="readout"></div>
+          <p class="hint-small">Select a machine using buttons 1, 2, or 3. Moving its base automatically moves the entire hierarchy.</p>
+        </div>
+
+        <div id="tab-settings" class="tab-content">
+          <div class="row">
+            <label class="t" for="speed">
+              <span>Animation Speed</span>
+              <span id="speedVal" class="val-badge">2.0</span>
+            </label>
+            <input id="speed" type="range" min="0.5" max="5" step="0.1" value="2">
+          </div>
+
+          <div class="toggle-list">
+            <label class="check">
+              <input id="chkScenery" type="checkbox" checked> Park Scenery (Urban Park)
+            </label>
+            <label class="check">
+              <input id="chkAxes" type="checkbox"> Show Pivot Local Axes
+            </label>
+            <label class="check">
+              <input id="chkGrid" type="checkbox"> Green Ground Grid
+            </label>
+            <input id="chkHighlight" type="checkbox" style="display:none;">
+          </div>
+
+          <div style="display:flex;gap:6px;margin-top:12px;">
+            <button id="btnResetCamera" class="mini-btn" style="flex:1;padding:8px 4px;font-size:11px;cursor:pointer;" title="Focus on the 3 fitness machines">📷 Machine View</button>
+            <button id="btnViewLake" class="mini-btn" style="flex:1;padding:8px 4px;font-size:11px;cursor:pointer;" title="Focus on the lake &amp; pier">🌊 Lake View</button>
+            <button id="btnViewOverview" class="mini-btn" style="flex:1;padding:8px 4px;font-size:11px;cursor:pointer;" title="Full view of the park &amp; lake">🏞️ Overview</button>
+          </div>
+
+          <p class="hint-small">💡 <b>Camera:</b> Drag the canvas to orbit. Scroll to zoom in or out.</p>
+        </div>
+      </aside>
+
+    </main>
   </div>
 
-  <!-- Panel Kontrol Minimalis & Rapi (Kanan Atas) -->
-  <div id="panel">
-    <div class="panel-header">
-      <div class="panel-title">
-        <h1>Outdoor Fitness Park</h1>
-        <p class="sub">Scene Graph &amp; Kinematika 3D</p>
-      </div>
-      <button id="btnAuto" class="btn-play" title="Mulai / Jeda Animasi">▶</button>
-    </div>
-
-    <!-- Tab Utama Navigasi Panel: Kontrol | Hierarki | Opsi -->
-    <div class="nav-tabs">
-      <button class="nav-tab active" data-tab="tab-control">🎮 Kontrol</button>
-      <button class="nav-tab" data-tab="tab-tree">🌳 Hierarki</button>
-      <button class="nav-tab" data-tab="tab-settings">⚙️ Opsi</button>
-    </div>
-
-    <!-- TAB 1: KONTROL INTERAKTIF & WASD -->
-    <div id="tab-control" class="tab-content active">
-      <!-- Pemilih Objek Mesin (3 Alat) -->
-      <div class="segment-group">
-        <button id="btnSelectLatPull" class="segment-btn active">1. Lat Pull</button>
-        <button id="btnSelectElliptical" class="segment-btn">2. Elliptical</button>
-        <button id="btnSelectAirWalker" class="segment-btn">3. Air Walker</button>
-      </div>
-
-      <!-- Info Posisi Base & Reset -->
-      <div class="base-hud">
-        <div class="hud-info">
-          <span class="hud-label">BASE AKTIF:</span>
-          <span id="baseStatusText">LatPull | X: -3.2m, Z: 0.0m</span>
-        </div>
-        <button id="btnResetBase" class="mini-btn" title="Reset Posisi Asal">Reset</button>
-      </div>
-
-      <!-- Artikulasi Sendi Gerak (Child Joints) -->
-      <div class="control-box">
-        <div class="box-tag">ARTIKULASI GERAK (CHILD NODES)</div>
-
-        <div id="rowPullAngle" class="row">
-          <label class="t" for="pullAngle">
-            <span>1. Tarik Lat Pull</span>
-            <span id="angleVal" class="val-badge">0.0°</span>
-          </label>
-          <input id="pullAngle" type="range" min="0" max="45" step="0.1" value="0">
-        </div>
-
-        <div id="rowStrideAngle" class="row">
-          <label class="t" for="strideAngle">
-            <span>2. Langkah Elliptical</span>
-            <span id="strideVal" class="val-badge">0.0°</span>
-          </label>
-          <input id="strideAngle" type="range" min="-12" max="12" step="0.1" value="0">
-        </div>
-
-        <div id="rowAirWalkerAngle" class="row">
-          <label class="t" for="airWalkerAngle">
-            <span>3. Ayunan Air Walker</span>
-            <span id="airWalkerVal" class="val-badge">0.0°</span>
-          </label>
-          <input id="airWalkerAngle" type="range" min="-25" max="25" step="0.1" value="0">
-        </div>
-      </div>
-
-      <!-- Transformasi Posisi Base (Parent Node / Keyboard WASD) -->
-      <div class="control-box">
-        <div class="box-tag">PINDAH BASE TERPILIH (PARENT / WASD)</div>
-
-        <div class="row">
-          <label class="t" for="basePosX">
-            <span>Geser Sumbu X</span>
-            <span id="basePosXVal" class="val-badge">-3.2m</span>
-          </label>
-          <input id="basePosX" type="range" min="-7" max="7" step="0.1" value="-3.2">
-        </div>
-
-        <div class="row">
-          <label class="t" for="basePosZ">
-            <span>Geser Sumbu Z</span>
-            <span id="basePosZVal" class="val-badge">0.0m</span>
-          </label>
-          <input id="basePosZ" type="range" min="-7" max="7" step="0.1" value="0.0">
-        </div>
-
-        <div class="row">
-          <label class="t" for="baseRotY">
-            <span>Rotasi Hadap (Y)</span>
-            <span id="baseRotYVal" class="val-badge">0°</span>
-          </label>
-          <input id="baseRotY" type="range" min="0" max="360" step="1" value="0">
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 2: POHON HIERARKI (SCENE GRAPH) -->
-    <div id="tab-tree" class="tab-content">
-      <div class="box-tag" style="margin-top:2px;">STRUKTUR PEWARISAN MATRIKS</div>
-      <div id="tree"></div>
-      <div id="readout"></div>
-      <p class="hint-small">Pilih alat lewat tombol 1, 2, atau 3. Menggeser Base otomatis memindahkan seluruh struktur di atasnya secara hierarkis.</p>
-    </div>
-
-    <!-- TAB 3: PENGATURAN & TAMPILAN -->
-    <div id="tab-settings" class="tab-content">
-      <div class="row">
-        <label class="t" for="speed">
-          <span>Kecepatan Animasi</span>
-          <span id="speedVal" class="val-badge">2.0</span>
-        </label>
-        <input id="speed" type="range" min="0.5" max="5" step="0.1" value="2">
-      </div>
-
-      <div class="toggle-list">
-        <label class="check">
-          <input id="chkScenery" type="checkbox" checked> Scenery Taman (Urban Park)
-        </label>
-        <label class="check">
-          <input id="chkHighlight" type="checkbox" checked> Kotak Seleksi Base
-        </label>
-        <label class="check">
-          <input id="chkAlt" type="checkbox" checked> Gerak Antiphase Kanan/Kiri
-        </label>
-        <label class="check">
-          <input id="chkAxes" type="checkbox"> Tampilkan Sumbu Lokal Pivot
-        </label>
-        <label class="check">
-          <input id="chkGrid" type="checkbox"> Grid Lantai Hijau
-        </label>
-      </div>
-
-      <div style="display:flex;gap:6px;margin-top:12px;">
-        <button id="btnResetCamera" class="mini-btn" style="flex:1;padding:8px 4px;font-size:11px;cursor:pointer;" title="Fokus ke 3 alat kebugaran">📷 Sudut Alat</button>
-        <button id="btnViewLake" class="mini-btn" style="flex:1;padding:8px 4px;font-size:11px;cursor:pointer;" title="Fokus ke danau &amp; dermaga">🌊 Sudut Danau</button>
-        <button id="btnViewOverview" class="mini-btn" style="flex:1;padding:8px 4px;font-size:11px;cursor:pointer;" title="Panorama keseluruhan taman &amp; danau">🏞️ Panorama</button>
-      </div>
-
-      <p class="hint-small">💡 <b>Kamera:</b> Drag canvas = putar orbit. Scroll mouse = zoom in/out.</p>
+  <div id="lightboxModal" class="lightbox-modal" onclick="closeLightbox(event)">
+    <div class="lightbox-content">
+      <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+      <img id="lightboxImg" src="" alt="Reference Image Preview">
+      <div id="lightboxCaption" class="lightbox-caption"></div>
     </div>
   </div>
 
-  <!-- Scripts JavaScript Terstruktur -->
   <script src="js/math.js"></script>
   <script src="js/shaders.js"></script>
   <script src="js/geometry.js"></script>
@@ -177,5 +346,102 @@
   <script src="js/renderer.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
+
+  <script>
+    (function initSidebarHelpers() {
+      const workspace = document.getElementById('appWorkspace');
+      const btnToggleSidebar = document.getElementById('btnToggleSidebar');
+      btnToggleSidebar?.addEventListener('click', () => {
+        workspace.classList.toggle('panel-collapsed');
+        btnToggleSidebar.classList.toggle('active', !workspace.classList.contains('panel-collapsed'));
+      });
+      const refFilterPills = document.querySelectorAll('.ref-filter-pill');
+      const refCards = document.querySelectorAll('#tab-reference .ref-card');
+
+      refFilterPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          refFilterPills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          const target = pill.getAttribute('data-ref');
+
+          refCards.forEach(card => {
+            if (target === 'all' || card.getAttribute('data-machine') === target) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+      function updateArticulationSliders() {
+        const isLP = document.getElementById('btnSelectLatPull')?.classList.contains('active');
+        const isEL = document.getElementById('btnSelectElliptical')?.classList.contains('active');
+        const isAW = document.getElementById('btnSelectAirWalker')?.classList.contains('active');
+
+        const rowLP = document.getElementById('rowPullAngle');
+        const rowEL = document.getElementById('rowStrideAngle');
+        const rowAW = document.getElementById('rowAirWalkerAngle');
+        const rowAlt = document.getElementById('rowAltOption');
+        const rowNone = document.getElementById('rowNoMachine');
+
+        if (rowLP) rowLP.style.display = isLP ? 'flex' : 'none';
+        if (rowEL) rowEL.style.display = isEL ? 'flex' : 'none';
+        if (rowAW) rowAW.style.display = isAW ? 'flex' : 'none';
+        if (rowAlt) rowAlt.style.display = (isLP || isAW) ? 'flex' : 'none';
+        if (rowNone) rowNone.style.display = (!isLP && !isEL && !isAW) ? 'block' : 'none';
+      }
+
+      function highlightRefCard(machineKey) {
+        refCards.forEach(card => {
+          if (card.getAttribute('data-machine') === machineKey) {
+            card.classList.add('highlighted');
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          } else {
+            card.classList.remove('highlighted');
+          }
+        });
+      }
+      const segGroup = document.querySelector('.segment-group');
+      if (segGroup) {
+        const obs = new MutationObserver(updateArticulationSliders);
+        obs.observe(segGroup, { attributes: true, subtree: true, attributeFilter: ['class'] });
+      }
+
+      document.getElementById('btnSelectLatPull')?.addEventListener('click', () => {
+        highlightRefCard('latPull');
+        setTimeout(updateArticulationSliders, 0);
+      });
+      document.getElementById('btnSelectElliptical')?.addEventListener('click', () => {
+        highlightRefCard('elliptical');
+        setTimeout(updateArticulationSliders, 0);
+      });
+      document.getElementById('btnSelectAirWalker')?.addEventListener('click', () => {
+        highlightRefCard('airWalker');
+        setTimeout(updateArticulationSliders, 0);
+      });
+
+      window.addEventListener('keydown', e => {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        if (e.code === 'Digit1') { highlightRefCard('latPull'); setTimeout(updateArticulationSliders, 0); }
+        if (e.code === 'Digit2') { highlightRefCard('elliptical'); setTimeout(updateArticulationSliders, 0); }
+        if (e.code === 'Digit3') { highlightRefCard('airWalker'); setTimeout(updateArticulationSliders, 0); }
+      });
+      updateArticulationSliders();
+    })();
+    function openLightbox(src, caption) {
+      const modal = document.getElementById('lightboxModal');
+      const img = document.getElementById('lightboxImg');
+      const cap = document.getElementById('lightboxCaption');
+      img.src = src;
+      cap.textContent = caption || '';
+      modal.classList.add('active');
+    }
+
+    function closeLightbox(e) {
+      if (e.target.tagName === 'IMG') return;
+      const modal = document.getElementById('lightboxModal');
+      modal.classList.remove('active');
+    }
+  </script>
 </body>
 </html>

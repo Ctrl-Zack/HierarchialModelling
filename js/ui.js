@@ -1,14 +1,8 @@
 'use strict';
 
-/**
- * UI Controls, Interaction Listeners, WASD Keyboard Navigation,
- * 3D Raycasting Object Picking (Click to Select / Deselect) & Orbit Camera
- */
-
 function setupUI(state, cam, sceneData, canvas) {
   const { latPull, elliptical, airWalker } = sceneData;
 
-  // Navigasi Tab (Kontrol | Hierarki | Opsi)
   const navTabs = document.querySelectorAll('.nav-tab');
   const tabContents = document.querySelectorAll('.tab-content');
 
@@ -23,14 +17,12 @@ function setupUI(state, cam, sceneData, canvas) {
     });
   });
 
-  // Pemilih Objek Mesin (3 Tombol: Lat Pull, Elliptical, Air Walker)
   const btnSelLP = document.getElementById('btnSelectLatPull');
   const btnSelEL = document.getElementById('btnSelectElliptical');
   const btnSelAW = document.getElementById('btnSelectAirWalker');
   const baseStatusText = document.getElementById('baseStatusText');
   const btnResetBase = document.getElementById('btnResetBase');
 
-  // Sliders Base
   const elBaseX = document.getElementById('basePosX');
   const elBaseXVal = document.getElementById('basePosXVal');
   const elBaseZ = document.getElementById('basePosZ');
@@ -38,7 +30,6 @@ function setupUI(state, cam, sceneData, canvas) {
   const elBaseRotY = document.getElementById('baseRotY');
   const elBaseRotYVal = document.getElementById('baseRotYVal');
 
-  // Sliders Artikulasi Gerak Sendi
   const elPullAngle = document.getElementById('pullAngle');
   const elPullVal = document.getElementById('angleVal');
   const elStrideAngle = document.getElementById('strideAngle');
@@ -46,7 +37,6 @@ function setupUI(state, cam, sceneData, canvas) {
   const elAirWalkerAngle = document.getElementById('airWalkerAngle');
   const elAirWalkerVal = document.getElementById('airWalkerVal');
 
-  // Animasi & Tampilan
   const elAuto = document.getElementById('btnAuto');
   const elSpeed = document.getElementById('speed');
   const elSpeedVal = document.getElementById('speedVal');
@@ -93,7 +83,7 @@ function setupUI(state, cam, sceneData, canvas) {
       elBaseXVal.textContent = '-';
       elBaseZVal.textContent = '-';
       elBaseRotYVal.textContent = '-';
-      baseStatusText.textContent = 'Belum ada alat dipilih (Klik alat)';
+      baseStatusText.textContent = 'No machine selected (Click a machine)';
       elBaseX.disabled = true;
       elBaseZ.disabled = true;
       elBaseRotY.disabled = true;
@@ -101,7 +91,6 @@ function setupUI(state, cam, sceneData, canvas) {
     }
   }
 
-  // Klik tombol tab pemilih alat di panel
   btnSelLP.addEventListener('click', () => {
     clearAllKeys();
     state.selectedMachine = state.selectedMachine === 'latPull' ? null : 'latPull';
@@ -180,7 +169,6 @@ function setupUI(state, cam, sceneData, canvas) {
 
   elStrideAngle.addEventListener('input', () => {
     if (state.auto) setAuto(false);
-    // Clamp agar tidak melebihi zona stabil four-bar linkage elliptical
     state.ellipticalStride = clamp(parseFloat(elStrideAngle.value), -12, 12);
   });
 
@@ -214,11 +202,8 @@ function setupUI(state, cam, sceneData, canvas) {
 
   document.getElementById('chkScenery')?.addEventListener('change', e => {
       state.showScenery = e.target.checked;
-    });
+  });
 
-  // =========================================================================
-  // SISTEM KONTROL KEYBOARD WASD
-  // =========================================================================
   const keysDown = new Set();
   let lastKeyTimestamp = 0;
 
@@ -291,7 +276,6 @@ function setupUI(state, cam, sceneData, canvas) {
     if (!active) return;
     let changed = false;
 
-    // W = Maju (-Z), S = Mundur (+Z)
     if (keysDown.has('KeyW')) {
       active.pos[2] = clamp(active.pos[2] - moveSpeed * dt, -6.5, 6.5);
       changed = true;
@@ -301,7 +285,6 @@ function setupUI(state, cam, sceneData, canvas) {
       changed = true;
     }
 
-    // A = Geser Kiri (-X), D = Geser Kanan (+X)
     if (keysDown.has('KeyA')) {
       active.pos[0] = clamp(active.pos[0] - moveSpeed * dt, -6.5, 6.5);
       changed = true;
@@ -311,7 +294,6 @@ function setupUI(state, cam, sceneData, canvas) {
       changed = true;
     }
 
-    // Q = Putar Kiri, E = Putar Kanan
     if (keysDown.has('KeyQ')) {
       if (state.selectedMachine === 'latPull') state.latPullRotY = (state.latPullRotY + rotSpeed * dt) % 360;
       else if (state.selectedMachine === 'elliptical') state.ellipticalRotY = (state.ellipticalRotY + rotSpeed * dt) % 360;
@@ -330,9 +312,6 @@ function setupUI(state, cam, sceneData, canvas) {
     }
   }
 
-  // =========================================================================
-  // SISTEM RAYCASTING 3D: KLIK PADA OBJEK = SELECT, KLIK DI LUAR = UNSELECT
-  // =========================================================================
   function getPickRay(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
     const x = clientX - rect.left;
@@ -355,15 +334,12 @@ function setupUI(state, cam, sceneData, canvas) {
     fx /= fl; fy /= fl; fz /= fl;
 
     const up = [0, 1, 0];
-    // Sumbu X kamera (Right vector) = cross(f, up)
-    // Sesuai dengan pembentukan sumbu X di Mat4.lookAt agar orientasi horizontal tidak terbalik
     let rx = fy * up[2] - fz * up[1];
     let ry = fz * up[0] - fx * up[2];
     let rz = fx * up[1] - fy * up[0];
     let rl = Math.hypot(rx, ry, rz);
     rx /= rl; ry /= rl; rz /= rl;
 
-    // Sumbu Y kamera (Up vector) = cross(r, f)
     const ux = ry * fz - rz * fy;
     const uy = rz * fx - rx * fz;
     const uz = rx * fy - ry * fx;
@@ -425,7 +401,6 @@ function setupUI(state, cam, sceneData, canvas) {
   function handleSceneClick(clientX, clientY) {
     const ray = getPickRay(clientX, clientY);
 
-    // Hit testing untuk ketiga mesin dengan bounding box lokal
     const hits = [
       { key: 'latPull',    t: testMachineHit(ray, state.latPullPos, state.latPullRotY, [-2.0, 0, -1.0], [2.0, 2.6, 1.0]) },
       { key: 'elliptical', t: testMachineHit(ray, state.ellipticalPos, state.ellipticalRotY, [-0.85, 0, -0.9], [0.85, 2.1, 1.2]) },
@@ -434,18 +409,13 @@ function setupUI(state, cam, sceneData, canvas) {
 
     if (hits.length > 0) {
       hits.sort((a, b) => a.t - b.t);
-      // Klik pada objek -> Select objek tersebut
       state.selectedMachine = hits[0].key;
     } else {
-      // Klik di luar objek (tanah rumput / langit kosong) -> Unselect / Tidak ada yang terpilih
       state.selectedMachine = null;
     }
     syncBaseSliders();
   }
 
-  // =========================================================================
-  // ORBIT KAMERA (Drag) vs KLIK SELEKSI (Tap)
-  // =========================================================================
   let dragging = false, lastX = 0, lastY = 0;
   let pointerDownX = 0, pointerDownY = 0;
 
@@ -461,7 +431,6 @@ function setupUI(state, cam, sceneData, canvas) {
   });
 
   function getMinPitch() {
-    // Sudut pitch minimum dinamis agar kamera selalu berada minimal 20cm di atas permukaan tanah (eye.y >= 0.20m)
     const safeHeight = 0.20;
     const sinMin = (safeHeight - cam.target[1]) / cam.dist;
     return Math.asin(clamp(sinMin, -0.99, 0.99)) * (180 / Math.PI);
@@ -509,7 +478,6 @@ function setupUI(state, cam, sceneData, canvas) {
       dragging = false;
       canvas.classList.remove('dragging');
 
-      // Deteksi Klik: Jika kursor berpindah kurang dari 6px, anggap sebagai KLIK (bukan drag putar kamera)
       const dist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
       if (dist < 6) {
         handleSceneClick(e.clientX, e.clientY);
@@ -526,7 +494,6 @@ function setupUI(state, cam, sceneData, canvas) {
     if (cam.pitch < minP) cam.pitch = minP;
   }, { passive: false });
 
-  // Update Tampilan Nilai Setiap Frame
   function updateUI() {
     const [lpR] = latPull.sides;
     const [elR] = elliptical.sides;
@@ -536,48 +503,48 @@ function setupUI(state, cam, sceneData, canvas) {
     elStrideVal.textContent = state.ellipticalStride.toFixed(1) + '°';
     elAirWalkerVal.textContent = state.airWalkerSwing.toFixed(1) + '°';
 
-    const lpTag = state.selectedMachine === 'latPull' ? '<span class="hl">► [TERPILIH] LatPullBaseNode</span>' : 'LatPullBaseNode';
-    const elTag = state.selectedMachine === 'elliptical' ? '<span class="hl">► [TERPILIH] EllipticalBaseNode</span>' : 'EllipticalBaseNode';
-    const awTag = state.selectedMachine === 'airWalker' ? '<span class="hl">► [TERPILIH] AirWalkerBaseNode</span>' : 'AirWalkerBaseNode';
+    const lpTag = state.selectedMachine === 'latPull' ? '<span class="hl">► [SELECTED] LatPullBaseNode</span>' : 'LatPullBaseNode';
+    const elTag = state.selectedMachine === 'elliptical' ? '<span class="hl">► [SELECTED] EllipticalBaseNode</span>' : 'EllipticalBaseNode';
+    const awTag = state.selectedMachine === 'airWalker' ? '<span class="hl">► [SELECTED] AirWalkerBaseNode</span>' : 'AirWalkerBaseNode';
 
     elTree.innerHTML =
 `Root (World Space)
-├─ UrbanParkEnvironmentNode (Scenery Taman & Danau)
-│   ├─ FitnessPad (Lantai Karet Merah Bata)
-│   ├─ JoggingTrackLoop (Paving Melingkar)
-│   ├─ ShadeTreesGroup (6 Pohon Peneduh)
-│   ├─ ParkBenchesGroup (3 Bangku Kayu)
-│   ├─ StreetlampsGroup (4 Lampu Tiang)
-│   └─ LakeScenicArea (Kawasan Danau Berkilau)
-│       ├─ LakeBasinAndWater (Cekungan & Air Biru Toska)
-│       ├─ LakesidePromenade (Jalur Paving & Bebatuan)
-│       ├─ LakesidePier (Dermaga Kayu & Perahu Dayung)
-│       └─ LakeFloraFauna (Teratai, Gelagah, Angsa & Air Mancur)
+├─ UrbanParkEnvironmentNode (Park & Lake Scenery)
+│   ├─ FitnessPad (Terracotta Rubber Floor)
+│   ├─ JoggingTrackLoop (Circular Paving)
+│   ├─ ShadeTreesGroup (6 Shade Trees)
+│   ├─ ParkBenchesGroup (3 Wooden Benches)
+│   ├─ StreetlampsGroup (4 Street Lamps)
+│   └─ LakeScenicArea (Sparkling Lake Area)
+│       ├─ LakeBasinAndWater (Basin & Turquoise Water)
+│       ├─ LakesidePromenade (Paved & Rocky Path)
+│       ├─ LakesidePier (Wooden Pier & Rowboat)
+│       └─ LakeFloraFauna (Lotus, Reeds, Swans & Fountain)
 │
 ├─ ${lpTag} (X=${state.latPullPos[0].toFixed(1)})
 │   ├─ <b>ConcreteBase</b>
-│   └─ <b>MainFrame</b> (Tiang Biru)
+│   └─ <b>MainFrame</b> (Blue Pole)
 │       ├─ <b>UpperPivot</b> rotZ = <b>${(LP_REST_DEG - lpR.pull).toFixed(1)}°</b>
-│       ├─ <b>RailUpper</b> α = <b>${lpR.alpha.toFixed(1)}°</b> (Kursi ↑ ${(lpR.lift * 100).toFixed(1)}cm)
+│       ├─ <b>RailUpper</b> α = <b>${lpR.alpha.toFixed(1)}°</b> (Seat ↑ ${(lpR.lift * 100).toFixed(1)}cm)
 │       └─ <b>LinkRod</b> (Constraint)
 │
 ├─ ${elTag} (X=${state.ellipticalPos[0].toFixed(1)})
 │   ├─ <b>ConcreteBase</b>
-│   └─ <b>MainFrame</b> (L-Frame Biru)
+│   └─ <b>MainFrame</b> (Blue L-Frame)
 │       ├─ <b>FrontPivot</b> rotX = <b>${elR.stride.toFixed(1)}°</b>
 │       ├─ <b>RearPivot</b> rotX = <b>${elR.phi.toFixed(1)}°</b>
-│       └─ <b>PedalBeam</b> (Pijakan Kaki 4-Batang)
+│       └─ <b>PedalBeam</b> (4-Bar Foot Pedal)
 │
 └─ ${awTag} (X=${state.airWalkerPos[0].toFixed(1)})
     ├─ <b>ConcreteBase</b>
-    └─ <b>MainFrame</b> (U-Portal Biru & Stang Depan)
+    └─ <b>MainFrame</b> (Blue U-Portal & Front Handlebars)
         └─ <b>AirWalkerPivot</b> rotX = <b>${awR.swing.toFixed(1)}°</b>
-            └─ <b>AirWalkerLeg</b> (Bandul Kaki & Pelat)`;
+            └─ <b>AirWalkerLeg</b> (Leg Pendulum & Plate)`;
 
     const act = getActivePosAndRot();
     elReadout.textContent = act
       ? `${act.name}: X=${act.pos[0].toFixed(2)}m  Z=${act.pos[2].toFixed(2)}m  RotY=${act.rot.toFixed(0)}°`
-      : 'Klik objek di viewport 3D untuk memilih alat.';
+      : 'Click an object in the 3D viewport to select a machine.';
   }
 
   syncBaseSliders();
