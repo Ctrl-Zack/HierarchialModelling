@@ -372,8 +372,6 @@ function buildParkBenches(parent, meshes) {
       bench.addPipe([sx, 0.58, 0.14], [sx, 0.58, -0.18], 0.018, MAT.lampMetal);
     }
 
-    bench.addPipe([-legX, 0.14, 0], [legX, 0.14, 0], 0.018, MAT.lampMetal);
-
     // 4 Papan Dudukan Kayu
     [0.14, 0.04, -0.06, -0.15].forEach(sz => {
       bench.addBox([benchWidth, 0.024, 0.082], [0, 0.44, sz], MAT.woodBench);
